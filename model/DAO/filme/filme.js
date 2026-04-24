@@ -75,7 +75,6 @@ const selectAllFilme = async function () {
 
         // Validação para verificar se o retorno do BD é um Array ou boolean (false)
         if(Array.isArray(result)){
-            console.log(result[0])
             return result[0] // retorna somente o indice com a lista de filmes
         } else{
             // Return false do banco de dados
