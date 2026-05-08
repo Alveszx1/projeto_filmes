@@ -43,12 +43,13 @@ const insertFilme = async function(filme){
 // Encaminha para o banco de dados o scriptSQL
 let result = await knexConection.raw(sql)
 
-if(result)
-    return true
+if(result)    
+    return result[0].insertId
 else    
     return false    
 
 }
+
 
 catch (error) {
     return false    
@@ -60,7 +61,28 @@ catch (error) {
 
 //Funcão para atualizar um filme existente no banco de dados
 const updateFilme = async function (filme) {
-    
+    try {
+        let sql = `update tbl_filme set 
+	nome = '${filme.nome}',
+    sinopse = '${filme.sinopse}',
+    capa = '${filme.capa}',
+    data_lancamento = '${filme.data_lancamento}',
+    duracao = '${filme.duracao}',
+    valor = '${filme.valor}',
+    avaliacao = if('${filme.avaliacao}' = " ", null, '${filme.avaliacao}')
+    where id = ${filme.id};`
+
+    let result = await knexConection.raw(sql)
+
+    if(result)
+        return true
+    else 
+        return false
+
+    } catch (error) {
+        return false
+    }
+
 }
 
 //Função para retornar todos os dados de filme do banco de dados
@@ -109,7 +131,20 @@ const selectByIdFilme = async function (id) {
 
 //Fnção para excluir um filme filtrando pelo id  
 const deleteFilme = async function (id) {
-    
+    try {
+        let sql = `DELETE FROM tbl_filme WHERE id=${id};`
+
+        let result = await knexConection.raw(sql)
+
+        if(result){
+            return true
+        }else{
+            return false
+        }
+
+    } catch (error) {
+            return false
+    }
 }
 
 module.exports = {

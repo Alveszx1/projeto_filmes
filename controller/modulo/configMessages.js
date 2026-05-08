@@ -55,12 +55,25 @@ const ERROR_NOT_FOUND = {
     message: "Não foram encontrados dados para retorno da requisição"
 }
 
+const SUCESS_UPDATE_ITEM = {
+    status: true,
+    status_code: 200,
+    message: 'Item atualizado com sucesso!'
+}
+
 
  // Mensagens de SUCESSO do projeto de filmes 
 const SUCCESS_CREATED_ITEM = {
     status: true,
     status_code: 201,
     message: "Item inserido com sucesso"
+}
+
+
+const SUCCESS_DELETED_ITEM = {
+    status: true,
+    status_code: 200,
+    message: 'Item excluido com sucesso!'
 }
 
 const SUCCESS_RESPONSE = {
@@ -78,5 +91,7 @@ module.exports = {
     ERROR_INTERNAL_SERVER_CONTROLLER,
     ERROR_NOT_FOUND,
     SUCCESS_RESPONSE,
+    SUCESS_UPDATE_ITEM,
+    SUCCESS_DELETED_ITEM,
     ERROR_CONTENT_TYPE
 }

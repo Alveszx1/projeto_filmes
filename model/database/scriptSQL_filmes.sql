@@ -40,5 +40,44 @@ insert into tbl_filme (
     "3"
 );
 
-select * from tbl_filme;
+select * from tbl_filme order by id desc;
+
+delete from tbl_filme where id = 1;
+
+select * from tbl_filme where id = 9;
+select * from tbl_filme ;
+
+DELETE FROM tbl_filme WHERE id = 8;
+
+update tbl_filme set 
+	nome = 'Ariranha',
+    sinopse = 'Testando a atualização do Filme',
+    capa = 'teste',
+    data_lancamento = '2026-04-29',
+    duracao = '02:30:00',
+    valor = '10',
+    avaliacao = '2'
+    where id = 9;
+    
+create table tbl_genero(
+	id int not null auto_increment primary key,
+    genero varchar(45) not null
+);
+
+insert into tbl_genero (
+	genero
+) values (
+	"Ficção Cientifíca"
+);
+
+ALTER TABLE tbl_genero
+CHANGE genero nome_genero VARCHAR(45) NOT NULL;
+
+select * from tbl_genero;
+
+desc tbl_genero;
+
+select * from tbl_genero order by id desc;
+    
+   
 
