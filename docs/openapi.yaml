@@ -1,0 +1,244 @@
+openapi: 3.0.3
+
+info:
+  title: Projeto Controle De Filmes
+  description: API destinada ao controle de filmes
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: brunohaddadalves75@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.4.26
+
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+
+  /v1/senai/locadora/filme:
+
+    post:
+      tags:
+        - Filme
+      summary: Adiciona um novo filme
+      description: Endpoint para enviar os dados do filme a serem cadastrados
+
+      requestBody:
+        description: JSON contendo os dados do novo filme
+        required: true
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Filme'
+
+      responses:
+        '201':
+          description: Filme cadastrado com sucesso
+
+        '400':
+          description: Invalid input
+
+        '415':
+          description: Invalid Content-Type
+
+        '500':
+          description: Error Internal Server (Controller / Model)
+
+    get:
+      tags:
+        - Filme
+
+      summary: Lista todos os filmes
+      description: Listagem de todos os filmes registrados no sistema
+
+      responses:
+        '200':
+          description: Successful operation
+
+          content:
+            application/json:
+              schema:
+                type: array
+
+                items:
+                  $ref: '#/components/schemas/Filme'
+
+        '404':
+          description: Not Found
+
+        '500':
+          description: Error Internal Server (Controller / Model)
+
+  /v1/senai/locadora/filme/{id}:
+
+    get:
+      tags:
+        - Filme
+
+      summary: Busca um filme pelo ID
+      description: Retorna um filme pelo ID
+
+      parameters:
+        - name: id
+          in: path
+          description: ID para realizar a busca do filme
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Successful operation
+
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Filme'
+
+        '400':
+          description: Invalid ID supplied
+
+        '404':
+          description: Not Found
+
+        '500':
+          description: Error Internal Server (Controller / Model)
+
+    put:
+      tags:
+        - Filme
+
+      summary: Atualiza um filme pelo ID
+      description: Buscar e atualizar um filme pelo ID
+
+      parameters:
+        - name: id
+          in: path
+          description: ID para atualizar um filme
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      requestBody:
+        description: Dados para atualizar um filme
+        required: true
+
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Filme'
+
+      responses:
+        '200':
+          description: Successful operation
+
+        '400':
+          description: Invalid ID supplied
+
+        '404':
+          description: Filme not found
+
+        '415':
+          description: Invalid Content-Type
+
+        '500':
+          description: Error Internal Server (Controller / Model)
+
+    delete:
+      tags:
+        - Filme
+
+      summary: Deletar um filme existente
+      description: Excluir um filme
+
+      parameters:
+        - name: id
+          in: path
+          description: ID do filme
+          required: true
+
+          schema:
+            type: integer
+            format: int64
+
+      responses:
+        '200':
+          description: Successful operation
+
+        '400':
+          description: Invalid ID supplied
+
+        '404':
+          description: Filme not found
+
+        '500':
+          description: Error Internal Server (Controller / Model)
+
+components:
+
+  schemas:
+
+    Filme:
+      type: object
+
+      required:
+        - nome
+        - sinopse
+        - data_lancamento
+
+      properties:
+
+        id:
+          type: integer
+          example: 1
+
+        nome:
+          type: string
+          example: Vingadores Ultimato
+
+        sinopse:
+          type: string
+          example: Filme de ação e aventura da Marvel
+
+        data_lancamento:
+          type: string
+          format: date
+          example: 2019-04-25
+
+        duracao:
+          type: string
+          example: 03:01:00
+
+        capa:
+          type: string
+          example: https://imagem.com/capa.jpg
+
+        valor:
+          type: number
+          format: float
+          example: 29.90
+
+        avaliacao:
+          type: number
+          format: float
+          example: 8.5
+
+  requestBodies:
+
+    Filme:
+      description: Objeto que deve ser enviado no body das requisições
+
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Filme'

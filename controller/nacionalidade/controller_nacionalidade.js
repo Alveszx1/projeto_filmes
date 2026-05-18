@@ -1,48 +1,38 @@
-/****************************************************************************************************************
- * Objetivo: Arquivo responsável pela validação, tratamento , manipulação de dados para realizar o CRUD de filme
- * Data: 17/04/2026
- * Autor: Bruno Haddad Alves
- * Versão: 1.0
- */
-
-//Import de configurações do arquivo de mensagens do projeto
-
 const configMessages = require("../modulo/configMessages.js")
-const generoDAO = require("../../model/DAO/genero/genero.js")
-const { buscarFilme } = require("../filme/controller_filme.js")
+const nacionalidadeDAO = require("../../model/DAO/nacionalidade/nacionalidade.js")
 
-const validarDados = async function(genero){
+const validarDados = async function(nacionalidade){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
-    if(genero.nome_genero == undefined || genero.nome_genero == null || genero.nome_genero.length > 45 || !isNaN(genero.nome_genero)){
-        customMessage.ERROR_BAD_REQUEST.field = "[GENERO] INVÁLIDO"
+    if(nacionalidade.nacionalidade == undefined ||nacionalidade.nacionalidade == null || nacionalidade.nacionalidade.length > 60 || !isNaN(nacionalidade.nacionalidade)){
+        customMessage.ERROR_BAD_REQUEST.field = "[NACIONALIDADE] INVÁLIDO"
         return customMessage.ERROR_BAD_REQUEST
     } else {
         return false
     }
 }
 
-const inserirNovoGenero =  async function(genero, contentType){
+const inserirNovaNacionalidade =  async function(nacionalidade, contentType){
 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
     try {
         if(String(contentType).toUpperCase() == "APPLICATION/JSON"){
-            let validacao = await validarDados(genero)
+            let validacao = await validarDados(nacionalidade)
 
             if(validacao){
                 return validacao
             }else{
-                let result = await generoDAO.insertGenero(await(tratarDados(genero)))
+                let result = await nacionalidadeDAO.insertNacionalidade(await(tratarDados(nacionalidade)))
                 console.log(result)
 
 
                 if(result){ // 201
 
-                    genero.id = result
+                    nacionalidade.id = result
 
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_CREATED_ITEM.status
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_CREATED_ITEM.status_code
                     customMessage.DEFAULT_MESSAGE.message = customMessage.SUCCESS_CREATED_ITEM.message
-                    customMessage.DEFAULT_MESSAGE.response = genero
+                    customMessage.DEFAULT_MESSAGE.response = nacionalidade
 
                     return customMessage.DEFAULT_MESSAGE
                 } else{
@@ -59,11 +49,11 @@ const inserirNovoGenero =  async function(genero, contentType){
 
 }
 
-const listarGenero = async function(){
+const listarNacionalidade = async function(){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
     try {
-        let result = await generoDAO.selectAllGenero()
+        let result = await nacionalidadeDAO.selectAllNacionalidade()
         console.log(result)
 
     if(result){
@@ -85,57 +75,8 @@ const listarGenero = async function(){
     }
 }
 
-const atualizarGenero = async function(genero, id , contentType){
-    let customMessage = JSON.parse(JSON.stringify(configMessages))
 
-
-    try {
-        if(String(contentType).toUpperCase() == "APPLICATION/JSON"){
-
-            let resultBuscarGenero = await buscarGenero(id)
-    
-            if(resultBuscarGenero.status){
-    
-                let validar = await validarDados(genero)
-    
-                if(!validar){
-    
-                    genero.id = Number(id)
-    
-                    let result = await generoDAO.updateGenero(await tratarDados(genero))
-    
-                    if(result){
-                        customMessage.DEFAULT_MESSAGE.status = customMessage.SUCESS_UPDATE_ITEM.status
-    
-                        customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCESS_UPDATE_ITEM.status_code
-    
-    
-                        customMessage.DEFAULT_MESSAGE.message = customMessage.SUCESS_UPDATE_ITEM.message
-    
-                        customMessage.DEFAULT_MESSAGE.response = genero
-    
-                        return customMessage.DEFAULT_MESSAGE
-                    }else{
-
-                        return customMessage.ERROR_INTERNAL_SERVER_MODEL
-                    }
-                }else{
-                    return validar
-                }
-            }else{
-                return resultBuscarGenero
-            }
-        }else{
-            return customMessage.ERROR_CONTENT_TYPE
-        }
-    } catch (error) {
-
-        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
-
-
-const buscarGenero = async function buscarGenero(id) {
+const buscarNacionalidade = async function buscarNacionalidade(id) {
 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
@@ -145,7 +86,7 @@ const buscarGenero = async function buscarGenero(id) {
             return customMessage.ERROR_BAD_REQUEST
         } else {
 
-            let result = await generoDAO.selectGeneroById(id)
+            let result = await nacionalidadeDAO.selectNacionalidadeById(id)
 
             if(result){
 
@@ -154,7 +95,7 @@ const buscarGenero = async function buscarGenero(id) {
 
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
 
-                    customMessage.DEFAULT_MESSAGE. response.genero = result
+                    customMessage.DEFAULT_MESSAGE. response.nacionalidade = result
 
                     return customMessage.DEFAULT_MESSAGE
                 }else{
@@ -170,19 +111,68 @@ const buscarGenero = async function buscarGenero(id) {
 }
 
 
-const deletarGenero = async function(id){
+const atualizarNacionalidade = async function(nacionalidade, id , contentType){
+    let customMessage = JSON.parse(JSON.stringify(configMessages))
+
+
+    try {
+        if(String(contentType).toUpperCase() == "APPLICATION/JSON"){
+
+            let resultBuscarNacionalidade = await buscarNacionalidade(id)
+    
+            if(resultBuscarNacionalidade.status){
+    
+                let validar = await validarDados(nacionalidade)
+    
+                if(!validar){
+    
+                    nacionalidade.id = Number(id)
+    
+                    let result = await nacionalidadeDAO.updateNacionalidade(await tratarDados(nacionalidade))
+    
+                    if(result){
+                        customMessage.DEFAULT_MESSAGE.status = customMessage.SUCESS_UPDATE_ITEM.status
+    
+                        customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCESS_UPDATE_ITEM.status_code
+    
+    
+                        customMessage.DEFAULT_MESSAGE.message = customMessage.SUCESS_UPDATE_ITEM.message
+    
+                        customMessage.DEFAULT_MESSAGE.response = nacionalidade
+    
+                        return customMessage.DEFAULT_MESSAGE
+                    }else{
+
+                        return customMessage.ERROR_INTERNAL_SERVER_MODEL
+                    }
+                }else{
+                    return validar
+                }
+            }else{
+                return resultBuscarNacionalidade
+            }
+        }else{
+            return customMessage.ERROR_CONTENT_TYPE
+        }
+    } catch (error) {
+
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+
+const deletarNacionalidade = async function(id){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
 
     try {
 
-        let resultBuscarGenero = await buscarGenero(id)
+        let resultBuscarNacionalidade = await buscarNacionalidade(id)
 
-        if(resultBuscarGenero.status){
+        if(resultBuscarNacionalidade.status){
 
 
-            let result = await generoDAO.deleteGenero(id)
-            console.log(result)
+            let result = await nacionalidadeDAO.deleteNacionalidade(id)
 
 
             if(result){
@@ -192,25 +182,29 @@ const deletarGenero = async function(id){
             }
 
         }else{
-            return resultBuscarGenero
+            return resultBuscarNacionalidade
         }
         
     } catch (error) {
+        console.log(error)
         return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
 
-const tratarDados = async function(genero){
-    genero.nome_genero = genero.nome_genero.replaceAll("'", "")
 
-    return genero
+
+
+const tratarDados = async function(nacionalidade){
+   nacionalidade.nacionalidade = nacionalidade.nacionalidade.replaceAll("'", "")
+
+    return nacionalidade
 }
 
 
 module.exports = {
-    inserirNovoGenero,
-    listarGenero,
-    buscarGenero,
-    atualizarGenero,
-    deletarGenero
+    inserirNovaNacionalidade,
+    listarNacionalidade,
+    buscarNacionalidade,
+    atualizarNacionalidade,
+    deletarNacionalidade
 }

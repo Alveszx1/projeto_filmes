@@ -1,48 +1,37 @@
-/****************************************************************************************************************
- * Objetivo: Arquivo responsável pela validação, tratamento , manipulação de dados para realizar o CRUD de filme
- * Data: 17/04/2026
- * Autor: Bruno Haddad Alves
- * Versão: 1.0
- */
-
-//Import de configurações do arquivo de mensagens do projeto
-
 const configMessages = require("../modulo/configMessages.js")
-const generoDAO = require("../../model/DAO/genero/genero.js")
-const { buscarFilme } = require("../filme/controller_filme.js")
+const sexoDAO = require("../../model/DAO/sexo/sexo.js")
 
-const validarDados = async function(genero){
+const validarDados = async function(sexo){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
-    if(genero.nome_genero == undefined || genero.nome_genero == null || genero.nome_genero.length > 45 || !isNaN(genero.nome_genero)){
-        customMessage.ERROR_BAD_REQUEST.field = "[GENERO] INVÁLIDO"
+    if(sexo.sexo == undefined || sexo.sexo == null || sexo.sexo.length > 9 || !isNaN(sexo.sexo)){
+        customMessage.ERROR_BAD_REQUEST.field = "[SEXO] INVÁLIDO"
         return customMessage.ERROR_BAD_REQUEST
     } else {
         return false
     }
 }
 
-const inserirNovoGenero =  async function(genero, contentType){
+const inserirNovoSexo =  async function(sexo, contentType){
 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
     try {
         if(String(contentType).toUpperCase() == "APPLICATION/JSON"){
-            let validacao = await validarDados(genero)
+            let validacao = await validarDados(sexo)
 
             if(validacao){
                 return validacao
             }else{
-                let result = await generoDAO.insertGenero(await(tratarDados(genero)))
-                console.log(result)
+                let result = await sexoDAO.insertSexo(await(tratarDados(sexo)))
 
 
                 if(result){ // 201
 
-                    genero.id = result
+                    sexo.id = result
 
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_CREATED_ITEM.status
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_CREATED_ITEM.status_code
                     customMessage.DEFAULT_MESSAGE.message = customMessage.SUCCESS_CREATED_ITEM.message
-                    customMessage.DEFAULT_MESSAGE.response = genero
+                    customMessage.DEFAULT_MESSAGE.response = sexo
 
                     return customMessage.DEFAULT_MESSAGE
                 } else{
@@ -59,19 +48,19 @@ const inserirNovoGenero =  async function(genero, contentType){
 
 }
 
-const listarGenero = async function(){
+const listarSexo = async function(){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
     try {
-        let result = await generoDAO.selectAllGenero()
-        console.log(result)
+        let result = await sexoDAO.selectAllSexo()
 
     if(result){
+
         if(result.length > 0){
             customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
             customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
             customMessage.DEFAULT_MESSAGE.count = result.length
-            customMessage.DEFAULT_MESSAGE.response.genero = result
+            customMessage.DEFAULT_MESSAGE.response.sexo = result
 
             return customMessage.DEFAULT_MESSAGE
         }else{
@@ -85,57 +74,8 @@ const listarGenero = async function(){
     }
 }
 
-const atualizarGenero = async function(genero, id , contentType){
-    let customMessage = JSON.parse(JSON.stringify(configMessages))
 
-
-    try {
-        if(String(contentType).toUpperCase() == "APPLICATION/JSON"){
-
-            let resultBuscarGenero = await buscarGenero(id)
-    
-            if(resultBuscarGenero.status){
-    
-                let validar = await validarDados(genero)
-    
-                if(!validar){
-    
-                    genero.id = Number(id)
-    
-                    let result = await generoDAO.updateGenero(await tratarDados(genero))
-    
-                    if(result){
-                        customMessage.DEFAULT_MESSAGE.status = customMessage.SUCESS_UPDATE_ITEM.status
-    
-                        customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCESS_UPDATE_ITEM.status_code
-    
-    
-                        customMessage.DEFAULT_MESSAGE.message = customMessage.SUCESS_UPDATE_ITEM.message
-    
-                        customMessage.DEFAULT_MESSAGE.response = genero
-    
-                        return customMessage.DEFAULT_MESSAGE
-                    }else{
-
-                        return customMessage.ERROR_INTERNAL_SERVER_MODEL
-                    }
-                }else{
-                    return validar
-                }
-            }else{
-                return resultBuscarGenero
-            }
-        }else{
-            return customMessage.ERROR_CONTENT_TYPE
-        }
-    } catch (error) {
-
-        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
-
-
-const buscarGenero = async function buscarGenero(id) {
+const buscarSexo = async function(id) {
 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
@@ -145,7 +85,7 @@ const buscarGenero = async function buscarGenero(id) {
             return customMessage.ERROR_BAD_REQUEST
         } else {
 
-            let result = await generoDAO.selectGeneroById(id)
+            let result = await sexoDAO.selectSexoById(id)
 
             if(result){
 
@@ -154,7 +94,7 @@ const buscarGenero = async function buscarGenero(id) {
 
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
 
-                    customMessage.DEFAULT_MESSAGE. response.genero = result
+                    customMessage.DEFAULT_MESSAGE. response.sexo = result
 
                     return customMessage.DEFAULT_MESSAGE
                 }else{
@@ -170,18 +110,68 @@ const buscarGenero = async function buscarGenero(id) {
 }
 
 
-const deletarGenero = async function(id){
+const atualizarSexo = async function(sexo, id , contentType){
+    let customMessage = JSON.parse(JSON.stringify(configMessages))
+
+
+    try {
+        if(String(contentType).toUpperCase() == "APPLICATION/JSON"){
+
+            let resultBuscarSexo = await buscarSexo(id)
+    
+            if(resultBuscarSexo.status){
+    
+                let validar = await validarDados(sexo)
+    
+                if(!validar){
+    
+                    sexo.id = Number(id)
+    
+                    let result = await sexoDAO.updateSexo(await tratarDados(sexo))
+    
+                    if(result){
+                        customMessage.DEFAULT_MESSAGE.status = customMessage.SUCESS_UPDATE_ITEM.status
+    
+                        customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCESS_UPDATE_ITEM.status_code
+    
+    
+                        customMessage.DEFAULT_MESSAGE.message = customMessage.SUCESS_UPDATE_ITEM.message
+    
+                        customMessage.DEFAULT_MESSAGE.response = sexo
+    
+                        return customMessage.DEFAULT_MESSAGE
+                    }else{
+
+                        return customMessage.ERROR_INTERNAL_SERVER_MODEL
+                    }
+                }else{
+                    return validar
+                }
+            }else{
+                return resultBuscarSexo
+            }
+        }else{
+            return customMessage.ERROR_CONTENT_TYPE
+        }
+    } catch (error) {
+        console.log(error)
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+
+const deletarSexo = async function(id){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
 
     try {
 
-        let resultBuscarGenero = await buscarGenero(id)
+        let resultBuscarSexo = await buscarSexo(id)
 
-        if(resultBuscarGenero.status){
+        if(resultBuscarSexo.status){
 
 
-            let result = await generoDAO.deleteGenero(id)
+            let result = await sexoDAO.deleteSexo(id)
             console.log(result)
 
 
@@ -192,7 +182,7 @@ const deletarGenero = async function(id){
             }
 
         }else{
-            return resultBuscarGenero
+            return resultBuscarSexo
         }
         
     } catch (error) {
@@ -200,17 +190,19 @@ const deletarGenero = async function(id){
     }
 }
 
-const tratarDados = async function(genero){
-    genero.nome_genero = genero.nome_genero.replaceAll("'", "")
 
-    return genero
+
+const tratarDados = async function(sexo){
+    sexo.sexo =sexo.sexo.replaceAll("'", "")
+
+    return sexo
 }
 
 
 module.exports = {
-    inserirNovoGenero,
-    listarGenero,
-    buscarGenero,
-    atualizarGenero,
-    deletarGenero
+    inserirNovoSexo,
+    listarSexo,
+    buscarSexo,
+    atualizarSexo,
+    deletarSexo
 }

@@ -144,7 +144,7 @@ const atualizarFilme = async function(filme, id, contentType) {
             // Chama a função para buscar o filme e validar se o id esta correto , se o id existe no banco de dados e se o filme existe
            let resultBuscarFilme = await buscarFilme(id)
            
-           if(resultBuscarFilme.status){
+           if(resultBuscarFilme.status_code){
                 let validar = await validarDados(filme)
 
 

@@ -73,11 +73,60 @@ insert into tbl_genero (
 ALTER TABLE tbl_genero
 CHANGE genero nome_genero VARCHAR(45) NOT NULL;
 
-select * from tbl_genero;
+	select * from tbl_genero;
 
 desc tbl_genero;
 
 select * from tbl_genero order by id desc;
+
+SELECT * FROM tbl_genero
+WHERE id = 4;
+
+update tbl_genero set    
+	nome_genero = "Terror"
+    where id = 4;
     
+DELETE FROM tbl_genero WHERE id = 2;
+
+create table tbl_genero(
+	id int not null auto_increment primary key,
+    genero varchar(45) not null
+);
+
+create table tbl_sexo(
+	id int not null auto_increment primary key,
+    sexo varchar(3) not null
+);
+
+
+SELECT * FROM tbl_sexo;
+
+desc tbl_sexo;
+
+
+SELECT * FROM tbl_genero;
+
+
+create table tbl_nacionalidade(
+	id int not null auto_increment primary key,
+    nacionalidade varchar(60) not null
+);
+
+desc tbl_nacionalidade;
+
+
+select * from tbl_nacionalidade;
+
+
+create table tbl_classificacao(
+
+	id int not null auto_increment primary key,
+    classificacao varchar(10) not null
+    
+);
+
+select * from tbl_classificacao
+
+
    
 
