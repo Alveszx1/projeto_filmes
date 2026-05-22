@@ -9,6 +9,13 @@
 const configMessages = require("../modulo/configMessages.js")
 
 const filmeDAO = require("../../model/DAO/filme/filme.js") 
+
+//Import das controllers
+const controllerClassificacao = require('../classificacacao/controller_classificacao.js')
+
+const controllerFilmeGenero = require("./controller_filme_genero.js")
+
+
 const { application } = require("express")
 const { json } = require("body-parser")
 
@@ -43,6 +50,10 @@ const validarDados =  async function(filme){
         customMessage.ERROR_BAD_REQUEST.field = "[AVALIAÇÃO] INVÁLIDO"
         return customMessage.ERROR_BAD_REQUEST
 
+    }else if ( filme.id_classificacao == undefined  || filme.id_classificacao == null ||  filme.id_classificacao == "" || isNaN(filme.id_classificacao) || filme.id_classificacao <= 0){
+        customMessage.ERROR_BAD_REQUEST.field = "[ID_CLASSIFICACAO] INVÁLIDO"
+        return customMessage.ERROR_BAD_REQUEST
+        // Validação para FK da classificação
     } else {
         
         return false 
@@ -78,6 +89,22 @@ const inserirNovoFilme = async function (filme, contentType) {
 
             filme.id = result
 
+            // Manipulação de dados para inseriri os generos relacionados ao Filme
+
+
+            //Percorre o array de generos e chegará na requisição pelo objeto
+
+            for(itemFilme of filme.genero){
+
+            let filmeGenero = {
+                "id_filme": filme.id,
+                "id_genero": itemFilme.id
+            }
+
+            let resulFilmeGenero = await controllerFilmeGenero.inserirFilmeGenero(filmeGenero)
+            console.log(resulFilmeGenero)
+        }
+
             customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_CREATED_ITEM.status
             customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_CREATED_ITEM.status_code
             customMessage.DEFAULT_MESSAGE.message = customMessage.SUCCESS_CREATED_ITEM.message
@@ -110,9 +137,29 @@ const listarFilme = async function(filme) {
         let result = await filmeDAO.selectAllFilme() 
         //Validação para verificar se o DAO conseguiu processar o script do BD
         if(result){
+
             //Validação para verificar se o conteúdo do array tem dados de retorno
             // ou se esta vazio
             if(result.length > 0){
+
+                //Manipulação dos dados da classificação
+                //Percorre o array de filmes
+                for(filme of result){
+
+                    //Busca na controller da classificacao o id referente a fk da classificação
+                    let resultClassicacao = await controllerClassificacao.buscarClassificacao(filme.id_classificacao)
+                    
+
+                     // Se encontrar o id
+                    if(resultClassicacao.status){
+                        //Adicionar um atributo classificação no JSON do filme e colocar o resultado com os dados da classificação
+                        filme.classificacao = resultClassicacao.response.classificacao
+
+                        //Apaga o id_classificação do JSON de filme
+                        delete filme.id_classificacao
+                    }
+                }
+
                 customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
                 customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
                 customMessage.DEFAULT_MESSAGE.count = result.length
@@ -194,6 +241,23 @@ const buscarFilme = async function (id) {
             //Validação para verificar se o DAO retornou dados ou um FALSE(Eerro)
 
             if(result){
+
+
+                for(filme of result){
+
+                    //Busca na controller da classificacao o id referente a fk da classificação
+                    let resultClassicacao = await controllerClassificacao.buscarClassificacao(filme.id_classificacao)
+                    
+
+                     // Se encontrar o id
+                    if(resultClassicacao.status){
+                        //Adicionar um atributo classificação no JSON do filme e colocar o resultado com os dados da classificação
+                        filme.classificacao = resultClassicacao.response.classificacao
+
+                        //Apaga o id_classificação do JSON de filme
+                        delete filme.id_classificacao
+                    }
+                }
                             //Validação para verificar se o DAO tem algum dado no array
 
                 if(result.length > 0){

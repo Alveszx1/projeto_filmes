@@ -175,6 +175,37 @@ const atualizarClassificacao = async function(classificacao, id , contentType){
 }
 
 
+const deletarClassificacao = async function(id){
+    let customMessage = JSON.parse(JSON.stringify(configMessages))
+
+
+    try {
+
+        let resultBuscarClassificacao = await buscarClassificacao(id)
+
+        if(resultBuscarClassificacao.status){
+
+
+            let result = await classificacaoDAO.deleteClassificacao(id)
+
+
+            if(result){
+                return customMessage.SUCCESS_DELETED_ITEM
+            }else{
+                return customMessage.ERROR_INTERNAL_SERVER_MODEL
+            }
+
+        }else{
+            return resultBuscarClassificacao
+        }
+        
+    } catch (error) {
+        console.log(error)
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+
 const tratarDados = async function(classificacao){
     classificacao.classificacao = classificacao.classificacao.replaceAll("'", "")
 
@@ -186,5 +217,6 @@ module.exports = {
     inserirNovaClassificacao,
     listarClassificacao,
     buscarClassificacao,
-    atualizarClassificacao
+    atualizarClassificacao,
+    deletarClassificacao
 }

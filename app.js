@@ -6,6 +6,7 @@ const controllerGenero = require("./controller/genero/controller_genero")
 const controllerSexo = require("./controller/sexo/controller_sexo")
 const controllerNacionalidade = require("./controller/nacionalidade/controller_nacionalidade")
 const controllerClassificacao = require("./controller/classificacacao/controller_classificacao")
+const controllerAtor = require("./controller/ator/controller_ator")
 
 
 
@@ -350,6 +351,55 @@ app.put('/v1/senai/locadora/classificacao/:id', bodyParserJson, async function (
 
     response.status(result.status_code)
     response.json(result)
+})
+
+
+app.delete("/v1/senai/locadora/classificacao/:id", async function(request, response) {
+
+    let id = request.params.id
+    
+    let result = await controllerClassificacao.deletarClassificacao(id)
+
+    response.status(result.status_code)
+    response.json(result)
+    
+})
+
+
+//Ator
+
+
+app.post("/v1/senai/locadora/ator", bodyParserJson, async function(request, response) {
+
+    // Recebendo o body da requisição
+    let dados = request.body
+    let contentType = request.headers["content-type"]
+    let result = await  controllerAtor.inserirNovoAtor(dados, contentType)
+    
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.get("/v1/senai/locadora/ator", async function(request, response) {
+
+    // Recebendo o body da requisição
+    let result = await controllerAtor.listarAtor()
+    
+    response.status(result.status_code)
+    response.json(result)
+
+})
+
+app.get("/v1/senai/locadora/ator/:id", async function(request, response) {
+    // Recebe o id do filme via parametro
+    let id = request.params.id
+
+    // Recebendo o body da requisição
+    let result = await controllerAtor.buscarAtor(id)
+    response.status(result.status_code)
+    response.json(result)
+
+
 })
 
 

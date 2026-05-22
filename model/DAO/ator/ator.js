@@ -7,13 +7,21 @@ const knexDatabaseConfig = require("../../database_config/knexConfig.js")
 const knexConection = knex(knexDatabaseConfig.development)
 
 
-const insertClassificacao = async function(classificacao){
+const insertAtor = async function(ator){
     try {
-        let sql = `insert into tbl_classificacao (
-    classificacao
-    ) values (
-    "${classificacao.classificacao}"
-    );`
+        let sql = `INSERT INTO tbl_ator (
+    nome,
+    data_nascimento,
+    foto,
+    biografia,
+    id_sexo
+) VALUES (
+    '${ator.nome}',
+    '${ator.data_nascimento}',
+    '${ator.foto}',
+    '${ator.biografia}',
+     ${ator.id_sexo}
+);`
     let result = await knexConection.raw(sql)
     if(result)
         return result[0].insertId
@@ -26,11 +34,10 @@ const insertClassificacao = async function(classificacao){
     }
 }
 
-
-const selectAllClassificacao = async function () {
+const selectAllAtor = async function () {
     try {
         // Script SQL para listar todos os filmes cadastrados
-        let sql = "select * from tbl_classificacao order by id desc"
+        let sql = "select * from tbl_ator order by id desc"
 
         //Executa no banco de dados o script e guarda o retorno do banco
         //Pode ser um erro (false) ou um array com os dados
@@ -50,17 +57,15 @@ const selectAllClassificacao = async function () {
     }
 }
 
-
-const selectClassificacaoById = async function(id) {
+const selectAtorById = async function(id) {
     try {
         
-        let sql = `SELECT * FROM tbl_classificacao
+        let sql = `SELECT * FROM tbl_ator
         WHERE id = ${id};`
         
 
         let result = await knexConection.raw(sql)
 
-        console.log(result)
 
         if(Array.isArray(result))
             return result[0]
@@ -75,51 +80,32 @@ const selectClassificacaoById = async function(id) {
 }
 
 
-
-const updateClassificacao = async function(classificacao){
+const updateAtor = async function (ator) {
     try {
+        let sql = `update tbl_ator set 
+    nome = '${filme.nome}',
+    data_nascimento = '${filme.sinopse}',
+    foto = '${filme.capa}',
+    biografia = '${filme.data_lancamento}',
+    id_sexo = '${filme.duracao}',
+    where id = ${filme.id};`
 
-        let sql = `update tbl_classificacao set    
-        classificacao = '${classificacao.classificacao}'
-        where id = ${classificacao.id};`
-        
-        let result = await knexConection.raw(sql)
+    let result = await knexConection.raw(sql)
 
-        if(result)
-            return true
-        else
-            return false
-
-        
-    } catch (error) {
-
-        console.log(error)
-            return false
-    }
-}
-
-
-const deleteClassificacao = async function (id) {
-    try {
-        let sql = `DELETE FROM tbl_classificacao WHERE id=${id};`
-
-        let result = await knexConection.raw(sql)
-
-        if(result){
-            return true
-        }else{
-            return false
-        }
+    if(result)
+        return true
+    else 
+        return false
 
     } catch (error) {
-            return false
+        return false
     }
+    
 }
 
 module.exports = {
-    insertClassificacao,
-    selectAllClassificacao,
-    selectClassificacaoById,
-    updateClassificacao,
-    deleteClassificacao
+    insertAtor,
+    selectAllAtor,
+    selectAtorById,
+    updateAtor
 }

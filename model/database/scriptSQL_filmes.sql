@@ -112,6 +112,23 @@ create table tbl_nacionalidade(
     nacionalidade varchar(60) not null
 );
 
+create table tbl_filme_genero(
+		id int not null auto_increment primary key,
+		id_filme int not null,
+		id_genero int not null,
+        
+        
+        constraint FK_FILME_FILMEGENERO
+        foreign key (id_filme)
+        references tbl_filme(id),
+        
+        constraint FK_GENERO_FILMEGENERO
+        foreign key (id_genero)
+        references tbl_genero(id)
+);
+
+select * from tbl_filme_genero;
+
 desc tbl_nacionalidade;
 
 
@@ -125,8 +142,50 @@ create table tbl_classificacao(
     
 );
 
-select * from tbl_classificacao
+select * from tbl_classificacao;
 
+delete from tbl_filme;
+
+alter table tbl_filme
+	add column id_classificacao int not null,
+    add constraint FK_CLASSIFICACAO_FILME
+		foreign key (id_classificacao)
+        references tbl_classificacao(id);
+        
+desc tbl_filme;
+
+
+create table tbl_ator (
+	id int not null auto_increment  key,
+    nome varchar(45)  not null,
+    data_nascimento date not null,
+    foto varchar(256) not null,
+    biografia text not null,
+    id_sexo int not null,
+    
+    constraint FK_SEXO_ATOR
+    foreign key (id_sexo)
+    references tbl_sexo(id)
+);
+
+desc tbl_ator;
+
+
+INSERT INTO tbl_ator (
+    nome,
+    data_nascimento,
+    foto,
+    biografia,
+    id_sexo
+) VALUES (
+    'Tom Holland',
+    '1996-06-01',
+    'https://exemplo.com/tom-holland.jpg',
+    'Thomas Stanley Holland é um ator britânico conhecido por interpretar Homem-Aranha nos filmes da Marvel.',
+    3
+);
+
+select * from tbl_ator
 
    
 
