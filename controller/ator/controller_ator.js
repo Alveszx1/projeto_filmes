@@ -184,6 +184,54 @@ const buscarAtor = async function (id) {
 }
 
 
+const atualizarAtor = async function(ator, id , contentType){
+    let customMessage = JSON.parse(JSON.stringify(configMessages))
+
+
+    try {
+        if(String(contentType).toUpperCase() == "APPLICATION/JSON"){
+
+            let resultBuscarAtor = await buscarAtor(id)
+    
+            if(resultBuscarAtor.status){
+    
+                let validar = await validarDados(ator)
+    
+                if(!validar){
+    
+                    ator.id = Number(id)
+    
+                    let result = await atorDAO.updateAtor(await tratarDados(ator))
+    
+                    if(result){
+                        customMessage.DEFAULT_MESSAGE.status = customMessage.SUCESS_UPDATE_ITEM.status
+    
+                        customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCESS_UPDATE_ITEM.status_code
+    
+    
+                        customMessage.DEFAULT_MESSAGE.message = customMessage.SUCESS_UPDATE_ITEM.message
+    
+                        customMessage.DEFAULT_MESSAGE.response = ator
+                        return customMessage.DEFAULT_MESSAGE
+                    }else{
+
+                        return customMessage.ERROR_INTERNAL_SERVER_MODEL
+                    }
+                }else{
+                    return validar
+                }
+            }else{
+                return resultBuscarAtor
+            }
+        }else{
+            return customMessage.ERROR_CONTENT_TYPE
+        }
+    } catch (error) {
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+
 const tratarDados = async function (ator) {
 
     ator.nome = ator.nome.replaceAll("'", "")
@@ -199,5 +247,6 @@ const tratarDados = async function (ator) {
 module.exports = {
     inserirNovoAtor,
     listarAtor,
-    buscarAtor
+    buscarAtor,
+    atualizarAtor
 }

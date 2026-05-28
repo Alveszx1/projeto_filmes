@@ -140,7 +140,7 @@ const buscarGeneroIdFilme = async function (id) {
             return customMessage.ERROR_BAD_REQUEST
         } else {
 
-            let result = await filmeGeneroDAO.selectByIdFilmeGenero(id)
+            let result = await filmeGeneroDAO.selectGenerosByIdFilme(id)
 
             if(result){
 
@@ -236,6 +236,35 @@ const buscarFilmeGenero = async function (id) {
 }
 
 
+const deletarGeneroIdFilme = async function(id){
+    let customMessage = JSON.parse(JSON.stringify(configMessages))
+
+
+    try {
+
+
+        
+
+
+            let result = await filmeGeneroDAO.deleteGeneroByIdFilme(id)
+            console.log(result)
+
+
+            if(result){
+                return customMessage.SUCCESS_DELETED_ITEM
+            }else{
+                return customMessage.ERROR_INTERNAL_SERVER_MODEL
+            }
+
+
+        
+    } catch (error) {
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+
+//Funçõão para excluir a relação de generos com o filme
 const deletarFilmeGenero = async function(id){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
@@ -274,6 +303,7 @@ module.exports = {
     atualizarFilmeGenero,
     deletarFilmeGenero,
     buscarFilmesIdGenero,
-    buscarGeneroIdFilme
+    buscarGeneroIdFilme,
+    deletarGeneroIdFilme
 
 }

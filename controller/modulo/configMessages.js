@@ -69,6 +69,12 @@ const SUCCESS_CREATED_ITEM = {
     message: "Item inserido com sucesso"
 }
 
+const SUCCESS_CREATED_ITEM_WARNING = {
+    status: true,
+    status_code: 201,
+    message: "Item inserido com sucesso porem alguns dados tiveram conflitos no cadastro [DADOS DE RELACIONAMENTO]"
+}
+
 
 const SUCCESS_DELETED_ITEM = {
     status: true,
@@ -91,6 +97,7 @@ module.exports = {
     ERROR_INTERNAL_SERVER_CONTROLLER,
     ERROR_NOT_FOUND,
     SUCCESS_RESPONSE,
+    SUCCESS_CREATED_ITEM_WARNING,
     SUCESS_UPDATE_ITEM,
     SUCCESS_DELETED_ITEM,
     ERROR_CONTENT_TYPE

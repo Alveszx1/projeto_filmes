@@ -83,12 +83,12 @@ const selectAtorById = async function(id) {
 const updateAtor = async function (ator) {
     try {
         let sql = `update tbl_ator set 
-    nome = '${filme.nome}',
-    data_nascimento = '${filme.sinopse}',
-    foto = '${filme.capa}',
-    biografia = '${filme.data_lancamento}',
-    id_sexo = '${filme.duracao}',
-    where id = ${filme.id};`
+    nome = '${ator.nome}',
+    data_nascimento = '${ator.data_nascimento}',
+    foto = '${ator.foto}',
+    biografia = '${ator.biografia}',
+    id_sexo = '${ator.id_sexo}'
+    where id = ${ator.id};`
 
     let result = await knexConection.raw(sql)
 
@@ -98,14 +98,34 @@ const updateAtor = async function (ator) {
         return false
 
     } catch (error) {
+        console.log(error   )
         return false
     }
     
 }
 
+const deleteAtor = async function(id){
+    try {
+        let sql = `DELETE FROM tbl_sexo WHERE id=${id};`
+
+        let result = await knexConection.raw(sql)
+        console.log(result)
+
+        if(result)
+            return true
+        else 
+            return false
+    } catch (error) {
+            return false
+    }
+}
+
+
+
 module.exports = {
     insertAtor,
     selectAllAtor,
     selectAtorById,
-    updateAtor
+    updateAtor,
+    deleteAtor
 }

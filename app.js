@@ -402,6 +402,24 @@ app.get("/v1/senai/locadora/ator/:id", async function(request, response) {
 
 })
 
+app.put('/v1/senai/locadora/ator/:id', bodyParserJson, async function (request, response) {
+
+    // Recebe o content-type da requisição para validar se é JSON
+    let contentType = request.headers['content-type']
+    // Recebe o ID do registro a ser atualizado
+    let id = request.params.id
+    // Recebe os dados do body que serão modificados no BD
+    let dados  = request.body
+
+    //Chama a função para atualizar o filme , devemos encaminhar as 3 variaveis na mesma sequencia
+    // que a função foi criada na controller
+
+    let result = await controllerAtor.atualizarAtor(dados, id, contentType)
+
+    response.status(result.status_code)
+    response.json(result)
+})
+
 
 
 app.listen(9090, function(){
