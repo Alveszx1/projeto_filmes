@@ -1,27 +1,27 @@
 const configMessages = require("../modulo/configMessages.js")
-const atorDAO = require("../../model/DAO/ator/ator.js")
+const diretorDAO = require("../../model/DAO/diretor/diretor.js")
 const controllerSexo = require("../../controller/sexo/controller_sexo.js")
 
 
-const validarDados = async function(ator){
+const validarDados = async function(diretor){
      let customMessage = JSON.parse(JSON.stringify(configMessages))
     
-        if( ator.nome == undefined || ator.nome == "" || ator.nome == null  || ator.nome.length > 45){
-            customMessage.ERROR_BAD_REQUEST.field = "[ATOR] INVÁLIDO"
+        if( diretor.nome == undefined || diretor.nome == "" || diretor.nome == null  || diretor.nome.length > 45){
+            customMessage.ERROR_BAD_REQUEST.field = "[DIRETOR] INVÁLIDO"
             return customMessage.ERROR_BAD_REQUEST
-        } else if (ator.data_nascimento == undefined || ator.data_nascimento == "" || ator.data_nascimento == null || ator.data_nascimento.length != 10 ){
+        } else if (diretor.data_nascimento == undefined || diretor.data_nascimento == "" || diretor.data_nascimento == null || diretor.data_nascimento.length != 10 ){
             customMessage.ERROR_BAD_REQUEST.field = "[DATA_NASCIMENTO] INVÁLIDO"
             return customMessage.ERROR_BAD_REQUEST
     
-        } else if (ator.foto == undefined || ator.foto == "" || ator.foto == null || ator.foto.length > 256){
+        } else if (diretor.foto == undefined || diretor.foto == "" || diretor.foto == null || diretor.foto.length > 256){
             customMessage.ERROR_BAD_REQUEST.field = "[FOTO] INVÁLIDO"
             return customMessage.ERROR_BAD_REQUEST
     
-        } else if (ator.biografia == undefined || ator.biografia == "" || ator.biografia == null){
+        } else if (diretor.biografia == undefined || diretor.biografia == "" || diretor.biografia == null){
             customMessage.ERROR_BAD_REQUEST.field = "[BIOGRAFIA] INVÁLIDO"
             return customMessage.ERROR_BAD_REQUEST
     
-        } else if ( ator.id_sexo == undefined  || ator.id_sexo == null ||  ator.id_sexo == "" || isNaN(ator.id_sexo) || ator.id_sexo <= 0){
+        } else if ( diretor.id_sexo == undefined  || diretor.id_sexo == null ||  diretor.id_sexo == "" || isNaN(diretor.id_sexo) || diretor.id_sexo <= 0){
             customMessage.ERROR_BAD_REQUEST.field = "[ID_SEXO] INVÁLIDO"
             return customMessage.ERROR_BAD_REQUEST
             // Validação para FK da classificação
@@ -31,29 +31,28 @@ const validarDados = async function(ator){
         }
 }
 
-const inserirNovoAtor =  async function(ator, contentType){
+const inserirNovoDiretor =  async function(diretor, contentType){
 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
     try {
         if(String(contentType).toUpperCase() == "APPLICATION/JSON"){
 
-            let validacao = await validarDados(ator)
+            let validacao = await validarDados(diretor)
 
             if(validacao){
                 return validacao
             }else{
-                let result = await atorDAO.insertAtor(await(tratarDados(ator)))
-                console.log(result)
+                let result = await diretorDAO.insertDiretor(await(tratarDados(diretor)))
 
 
                 if(result){ // 201
 
-                    ator.id = result
+                    diretor.id = result
 
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_CREATED_ITEM.status
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_CREATED_ITEM.status_code
                     customMessage.DEFAULT_MESSAGE.message = customMessage.SUCCESS_CREATED_ITEM.message
-                    customMessage.DEFAULT_MESSAGE.response = ator
+                    customMessage.DEFAULT_MESSAGE.response = diretor
 
                     return customMessage.DEFAULT_MESSAGE
                 } else{
@@ -71,13 +70,13 @@ const inserirNovoAtor =  async function(ator, contentType){
 }
 
 
-const listarAtor = async function() {
+const listarDiretor = async function() {
         // Cria uma cópia dos JSON do arquivo de configuração de mensagens 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
     try {
         // Chama a função do DAO para retornar a lista de filmes do banco de dados
-        let result = await atorDAO.selectAllAtor() 
+        let result = await diretorDAO.selectAllDiretor() 
         //Validação para verificar se o DAO conseguiu processar o script do BD
         if(result){
 
@@ -87,26 +86,26 @@ const listarAtor = async function() {
 
                 //Manipulação dos dados da classificação
                 //Percorre o array de filmes
-                for(ator of result){
+                for(diretor of result){
 
                     //Busca na controller da classificacao o id referente a fk da classificação
-                    let resultSexo = await controllerSexo.buscarSexo(ator.id_sexo)
+                    let resultSexo = await controllerSexo.buscarSexo(diretor.id_sexo)
                     
 
                      // Se encontrar o id
                     if(resultSexo.status){
                         //Adicionar um atributo classificação no JSON do filme e colocar o resultado com os dados da classificação
-                        ator.sexo = resultSexo.response.sexo
+                        diretor.sexo = resultSexo.response.sexo
 
                         //Apaga o id_classificação do JSON de filme
-                        delete ator.id_sexo
+                        delete diretor.id_sexo
                     }
                 }
 
                 customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
                 customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
                 customMessage.DEFAULT_MESSAGE.count = result.length
-                customMessage.DEFAULT_MESSAGE.response.ator = result
+                customMessage.DEFAULT_MESSAGE.response.diretor = result
 
                 return customMessage.DEFAULT_MESSAGE
             }else{
@@ -121,7 +120,7 @@ const listarAtor = async function() {
     }
 }
 
-const buscarAtor = async function (id) {
+const buscarDiretor = async function (id) {
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
     try {
@@ -133,23 +132,22 @@ const buscarAtor = async function (id) {
         }else{
 
             //Chama a função do DAO para pesquisar o filme pelo ID
-            let result = await atorDAO.selectAtorById(id)
+            let result = await diretorDAO.selectDiretorById(id)
 
 
-
-                for(ator of result){
+                for(diretor of result){
 
                     //Busca na controller da classificacao o id referente a fk da classificação
-                    let resultSexo = await controllerSexo.buscarSexo(ator.id_sexo)
+                    let resultSexo = await controllerSexo.buscarSexo(diretor.id_sexo)
                     
 
                      // Se encontrar o id
                     if(resultSexo.status){
                         //Adicionar um atributo classificação no JSON do filme e colocar o resultado com os dados da classificação
-                        ator.sexo= resultSexo.response.sexo
+                        diretor.sexo= resultSexo.response.sexo
 
                         //Apaga o id_classificação do JSON de filme
-                        delete ator.id_sexo
+                        delete diretor.id_sexo
                     }
                 }
 
@@ -161,7 +159,7 @@ const buscarAtor = async function (id) {
                 if(result.length > 0){
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
-                    customMessage.DEFAULT_MESSAGE.response.ator = result
+                    customMessage.DEFAULT_MESSAGE.response.diretor = result
 
                     return customMessage.DEFAULT_MESSAGE //200
 
@@ -184,24 +182,24 @@ const buscarAtor = async function (id) {
 }
 
 
-const atualizarAtor = async function(ator, id , contentType){
+const atualizarDiretor = async function(diretor, id , contentType){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
 
     try {
         if(String(contentType).toUpperCase() == "APPLICATION/JSON"){
 
-            let resultBuscarAtor = await buscarAtor(id)
+            let resultBuscarDiretor = await buscarDiretor(id)
     
-            if(resultBuscarAtor.status){
+            if(resultBuscarDiretor.status){
     
-                let validar = await validarDados(ator)
+                let validar = await validarDados(diretor)
     
                 if(!validar){
     
-                    ator.id = Number(id)
+                    diretor.id = Number(id)
     
-                    let result = await atorDAO.updateAtor(await tratarDados(ator))
+                    let result = await diretorDAO.updateDiretor(await tratarDados(diretor))
     
                     if(result){
                         customMessage.DEFAULT_MESSAGE.status = customMessage.SUCESS_UPDATE_ITEM.status
@@ -211,7 +209,7 @@ const atualizarAtor = async function(ator, id , contentType){
     
                         customMessage.DEFAULT_MESSAGE.message = customMessage.SUCESS_UPDATE_ITEM.message
     
-                        customMessage.DEFAULT_MESSAGE.response = ator
+                        customMessage.DEFAULT_MESSAGE.response = diretor
                         return customMessage.DEFAULT_MESSAGE
                     }else{
 
@@ -221,7 +219,7 @@ const atualizarAtor = async function(ator, id , contentType){
                     return validar
                 }
             }else{
-                return resultBuscarAtor
+                return resultBuscarDiretor
             }
         }else{
             return customMessage.ERROR_CONTENT_TYPE
@@ -232,53 +230,21 @@ const atualizarAtor = async function(ator, id , contentType){
 }
 
 
-const deletarAtor = async function(id){
-    let customMessage = JSON.parse(JSON.stringify(configMessages))
+const tratarDados = async function (diretor) {
 
+    diretor.nome = diretor.nome.replaceAll("'", "")
+    diretor.data_nascimento = diretor.data_nascimento.replaceAll("'", "")
+    diretor.foto = diretor.foto.replaceAll("'", "")
+    diretor.biografia = diretor.biografia.replaceAll("'", "")
 
-    try {
-
-        let resultBuscarAtor = await buscarAtor(id)
-
-        if(resultBuscarAtor.status){
-
-
-            let result = await atorDAO.deleteAtor(id)
-
-
-            if(result){
-                return customMessage.SUCCESS_DELETED_ITEM
-            }else{
-                return customMessage.ERROR_INTERNAL_SERVER_MODEL
-            }
-
-        }else{
-            return resultBuscarAtor
-        }
-        
-    } catch (error) {
-        console.log(error)
-        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
-
-
-const tratarDados = async function (ator) {
-
-    ator.nome = ator.nome.replaceAll("'", "")
-    ator.data_nascimento = ator.data_nascimento.replaceAll("'", "")
-    ator.foto = ator.foto.replaceAll("'", "")
-    ator.biografia = ator.biografia.replaceAll("'", "")
-
-    return ator
+    return diretor
     
 }
 
 
 module.exports = {
-    inserirNovoAtor,
-    listarAtor,
-    buscarAtor,
-    atualizarAtor,
-    deletarAtor
+    inserirNovoDiretor,
+    listarDiretor,
+    buscarDiretor,
+    atualizarDiretor
 }

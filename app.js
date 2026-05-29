@@ -7,6 +7,7 @@ const controllerSexo = require("./controller/sexo/controller_sexo")
 const controllerNacionalidade = require("./controller/nacionalidade/controller_nacionalidade")
 const controllerClassificacao = require("./controller/classificacacao/controller_classificacao")
 const controllerAtor = require("./controller/ator/controller_ator")
+const controllerDiretor = require("./controller/diretor/controller_diretor")
 
 
 
@@ -416,6 +417,29 @@ app.put('/v1/senai/locadora/ator/:id', bodyParserJson, async function (request, 
 
     let result = await controllerAtor.atualizarAtor(dados, id, contentType)
 
+    response.status(result.status_code)
+    response.json(result)
+})
+
+app.delete("/v1/senai/locadora/ator/:id", async function(request, response) {
+    console.log("ooooo")
+    let id = request.params.id
+    
+    let result = await controllerAtor.deletarAtor(id)
+
+    response.status(result.status_code)
+    response.json(result)
+    
+})
+
+
+app.post("/v1/senai/locadora/diretor", bodyParserJson, async function(request, response) {
+
+    // Recebendo o body da requisição
+    let dados = request.body
+    let contentType = request.headers["content-type"]
+    let result = await controllerDiretor.inserirNovoDiretor(dados, contentType)
+    
     response.status(result.status_code)
     response.json(result)
 })
