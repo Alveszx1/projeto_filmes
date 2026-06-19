@@ -11,6 +11,9 @@ const controllerAtor = require("./controller/ator/controller_ator")
 
 
 
+
+
+
 // permitindo a utilização do JSON no body das requisições
 const bodyParserJson = bodyParser.json()
 
@@ -94,67 +97,13 @@ app.delete("/v1/senai/locadora/filme/:id", async function name(request, response
 })
 
 
-app.post("/v1/senai/locadora/genero", bodyParserJson, async function(request, response) {
 
-    // Recebendo o body da requisição
-    let dados = request.body
-    let contentType = request.headers["content-type"]
-    let result = await controllerGenero.inserirNovoGenero(dados, contentType)
-    
-    response.status(result.status_code)
-    response.json(result)
-})
-
-app.get("/v1/senai/locadora/genero", async function (request, response) {
-    let result = await controllerGenero.listarGenero()
-
-    response.status(result.status_code)
-    response.json(result)
-})
-
-app.get("/v1/senai/locadora/genero/:id", async function(request, response) {
-    // Recebe o id do filme via parametro
-    let id = request.params.id
-
-    // Recebendo o body da requisição
-    let result = await controllerGenero.buscarGenero(id)
-    
-    response.status(result.status_code)
-    response.json(result)
+//Import do arquivo de rotas do genero 
+const generoRouter = require("././routes/genero.router.js")
+app.use("/v1/senai/locadora/genero", cors(), generoRouter)
 
 
-})
 
-
-app.put('/v1/senai/locadora/genero/:id', bodyParserJson, async function (request, response) {
-
-    // Recebe o content-type da requisição para validar se é JSON
-    let contentType = request.headers['content-type']
-    // Recebe o ID do registro a ser atualizado
-    let id = request.params.id
-    // Recebe os dados do body que serão modificados no BD
-    let dados  = request.body
-
-    //Chama a função para atualizar o filme , devemos encaminhar as 3 variaveis na mesma sequencia
-    // que a função foi criada na controller
-
-    let result = await controllerGenero.atualizarGenero(dados, id, contentType)
-
-    response.status(result.status_code)
-    response.json(result)
-})
-
-
-app.delete("/v1/senai/locadora/genero/:id", async function(request, response) {
-
-    let id = request.params.id
-    
-    let result = await controllerGenero.deletarGenero(id)
-
-    response.status(result.status_code)
-    response.json(result)
-    
-})
 
 
 //Sexo

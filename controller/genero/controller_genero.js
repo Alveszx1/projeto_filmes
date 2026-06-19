@@ -135,7 +135,7 @@ const atualizarGenero = async function(genero, id , contentType){
 }
 
 
-const buscarGenero = async function buscarGenero(id) {
+const buscarGenero = async function(id) {
 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 

@@ -1,5 +1,3 @@
-Aqui está o README completo e correto para colar no GitHub:
-markdown# 🎬 API de Cadastro de Filmes
 
 ![Node.js](https://img.shields.io/badge/Node.js-18+-green)
 ![Express](https://img.shields.io/badge/Express-Framework-black)
