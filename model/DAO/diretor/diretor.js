@@ -7,20 +7,20 @@ const knexDatabaseConfig = require("../../database_config/knexConfig.js")
 const knexConection = knex(knexDatabaseConfig.development)
 
 
-const insertAtor = async function(ator){
+const insertDiretor = async function(diretor){
     try {
-        let sql = `INSERT INTO tbl_ator (
+        let sql = `INSERT INTO tbl_diretor (
     nome,
     data_nascimento,
     foto,
     biografia,
     id_sexo
 ) VALUES (
-    '${ator.nome}',
-    '${ator.data_nascimento}',
-    '${ator.foto}',
-    '${ator.biografia}',
-     ${ator.id_sexo}
+    '${diretor.nome}',
+    '${diretor.data_nascimento}',
+    '${diretor.foto}',
+    '${diretor.biografia}',
+     ${diretor.id_sexo}
 );`
     let result = await knexConection.raw(sql)
     if(result)
@@ -34,7 +34,7 @@ const insertAtor = async function(ator){
     }
 }
 
-const selectAllAtor = async function () {
+const selectAllDiretor = async function () {
     try {
         // Script SQL para listar todos os filmes cadastrados
         let sql = "select * from tbl_ator order by id desc"
@@ -53,12 +53,11 @@ const selectAllAtor = async function () {
 
     } catch (error) {
         // return false do JavaScritp
-    
        return false 
     }
 }
 
-const selectAtorById = async function(id) {
+const selectDiretorById = async function(id) {
     try {
         
         let sql = `SELECT * FROM tbl_ator
@@ -81,7 +80,7 @@ const selectAtorById = async function(id) {
 }
 
 
-const updateAtor = async function (ator) {
+const updateDiretor = async function (ator) {
     try {
         let sql = `update tbl_ator set 
     nome = '${ator.nome}',
@@ -105,11 +104,12 @@ const updateAtor = async function (ator) {
     
 }
 
-const deleteAtor = async function(id){
+const deleteDiretor = async function(id){
     try {
-        let sql = `DELETE FROM tbl_ator WHERE id=${id};`
+        let sql = `DELETE FROM tbl_sexo WHERE id=${id};`
 
         let result = await knexConection.raw(sql)
+        console.log(result)
 
         if(result)
             return true
@@ -123,9 +123,9 @@ const deleteAtor = async function(id){
 
 
 module.exports = {
-    insertAtor,
-    selectAllAtor,
-    selectAtorById,
-    updateAtor,
-    deleteAtor
+    insertDiretor,
+    selectAllDiretor,
+    selectDiretorById,
+    updateDiretor,
+    deleteDiretor
 }
