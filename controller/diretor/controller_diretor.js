@@ -1,6 +1,7 @@
 const configMessages = require("../modulo/configMessages.js")
 const diretorDAO = require("../../model/DAO/diretor/diretor.js")
 const controllerSexo = require("../../controller/sexo/controller_sexo.js")
+const controllerNacionalidadeDiretor = require("../../controller/diretor/controller_nacionalidade_diretor.js")
 
 
 const validarDados = async function(diretor){
@@ -49,6 +50,27 @@ const inserirNovoDiretor =  async function(diretor, contentType){
 
                     diretor.id = result
 
+
+                     for(itemNacionalidade of diretor.nacionalidade){
+                    
+                                let nacionalidadeDiretor = {
+                                    "id_diretor": diretor.id,
+                                    "id_nacionalidade": itemNacionalidade.id
+                                }
+                    
+                                let resultNacionalidadeDiretor = await controllerNacionalidadeDiretor.inserirNacionalidadeDiretor(nacionalidadeDiretor)
+                    
+                                //Validação para verificar se odos os itens de relacionamento foram inseridos
+                                if(!resultNacionalidadeDiretor.status){
+                                    return customMessage.SUCCESS_CREATED_ITEM_WARNING // 201 com alerta de cadastro
+                                }
+                               
+                            }
+
+                             
+                    
+                
+
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_CREATED_ITEM.status
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_CREATED_ITEM.status_code
                     customMessage.DEFAULT_MESSAGE.message = customMessage.SUCCESS_CREATED_ITEM.message
@@ -71,36 +93,35 @@ const inserirNovoDiretor =  async function(diretor, contentType){
 
 
 const listarDiretor = async function() {
-        // Cria uma cópia dos JSON do arquivo de configuração de mensagens 
+
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
     try {
-        // Chama a função do DAO para retornar a lista de filmes do banco de dados
-        let result = await diretorDAO.selectAllDiretor() 
-        //Validação para verificar se o DAO conseguiu processar o script do BD
+
+        let result = await diretorDAO.selectAllDiretor()
+
         if(result){
 
-            //Validação para verificar se o conteúdo do array tem dados de retorno
-            // ou se esta vazio
             if(result.length > 0){
 
-                //Manipulação dos dados da classificação
-                //Percorre o array de filmes
-                for(diretor of result){
+                for(let diretor of result){
 
-                    //Busca na controller da classificacao o id referente a fk da classificação
                     let resultSexo = await controllerSexo.buscarSexo(diretor.id_sexo)
-                    
 
-                     // Se encontrar o id
                     if(resultSexo.status){
-                        //Adicionar um atributo classificação no JSON do filme e colocar o resultado com os dados da classificação
                         diretor.sexo = resultSexo.response.sexo
-
-                        //Apaga o id_classificação do JSON de filme
                         delete diretor.id_sexo
                     }
+
+
+                    let resultNacionalidade = await controllerNacionalidadeDiretor.buscarNacionalidadesByIdDiretor(diretor.id)
+
+                    if(resultNacionalidade.status){
+                        diretor.nacionalidade = resultNacionalidade.response.nacionalidade
+                    }
+
                 }
+
 
                 customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
                 customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
@@ -108,15 +129,19 @@ const listarDiretor = async function() {
                 customMessage.DEFAULT_MESSAGE.response.diretor = result
 
                 return customMessage.DEFAULT_MESSAGE
+
             }else{
                 return customMessage.ERROR_NOT_FOUND
             }
+
         }else{
             return customMessage.ERROR_INTERNAL_SERVER_MODEL
         }
 
-    } catch (error) {
-        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER //500 (controller)
+
+    } catch(error){
+        console.log(error)
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
 
@@ -131,11 +156,26 @@ const buscarDiretor = async function (id) {
 
         }else{
 
-            //Chama a função do DAO para pesquisar o filme pelo ID
+            //Chama a função do DAO para pesquisar o diretor pelo ID
             let result = await diretorDAO.selectDiretorById(id)
+
+            
+
+
+                
+
+            //Validação para verificar se o DAO retornou dados ou um FALSE(Eerro)
+
+            if(result){
 
 
                 for(diretor of result){
+
+                    let resultNacionalidade = await controllerNacionalidadeDiretor.buscarNacionalidadesByIdDiretor(diretor.id)
+
+                    if(resultNacionalidade.status){
+                        diretor.nacionalidade = resultNacionalidade.response.nacionalidade
+                    }
 
                     //Busca na controller da classificacao o id referente a fk da classificação
                     let resultSexo = await controllerSexo.buscarSexo(diretor.id_sexo)
@@ -150,10 +190,6 @@ const buscarDiretor = async function (id) {
                         delete diretor.id_sexo
                     }
                 }
-
-            //Validação para verificar se o DAO retornou dados ou um FALSE(Eerro)
-
-            if(result){
                             //Validação para verificar se o DAO tem algum dado no array
 
                 if(result.length > 0){
@@ -175,6 +211,8 @@ const buscarDiretor = async function (id) {
             }
         }
     } catch (error) {
+
+        console.log(error)
 
         return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
 
@@ -202,6 +240,26 @@ const atualizarDiretor = async function(diretor, id , contentType){
                     let result = await diretorDAO.updateDiretor(await tratarDados(diretor))
     
                     if(result){
+
+                        let resultDeleteNacionalidades = await controllerNacionalidadeDiretor.deletarNacionalidadeDiretor(diretor.id)
+
+                                if(!resultDeleteNacionalidades.status){
+                                    return resultDeleteNacionalidades  
+                                }
+
+                                for(itemNacionalidade of diretor.nacionalidade){
+                                    let nacionalidadeDiretor = {
+                                        "id_diretor": diretor.id,
+                                        "id_nacionalidade": itemNacionalidade.id
+                                    }
+
+                                    let resultNacionalidadeDiretor = await controllerNacionalidadeDiretor.inserirNacionalidadeDiretor(nacionalidadeDiretor)
+
+                                    if(!resultNacionalidadeDiretor.status){
+                                        return customMessage.SUCCESS_CREATED_ITEM_WARNING
+                                    }
+                                }
+                        
                         customMessage.DEFAULT_MESSAGE.status = customMessage.SUCESS_UPDATE_ITEM.status
     
                         customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCESS_UPDATE_ITEM.status_code
@@ -230,6 +288,40 @@ const atualizarDiretor = async function(diretor, id , contentType){
 }
 
 
+const excluirDiretor = async function (id) {
+    let customMessage = JSON.parse(JSON.stringify(configMessages))
+
+    try {
+
+        let resultBuscarDiretor = await buscarDiretor(id)
+        
+        if(resultBuscarDiretor.status){
+
+            
+            let resultDeleteNacionalidade = await controllerNacionalidadeDiretor.deletarNacionalidadeDiretor(id)
+
+            if(!resultDeleteNacionalidade.status){
+                return resultDeleteNacionalidade
+            }
+
+            let result = await diretorDAO.deleteDiretor(id)
+
+            if(result){
+                return customMessage.SUCCESS_DELETED_ITEM
+            }
+            else{
+                return customMessage.ERROR_INTERNAL_SERVER_MODEL
+            }
+        }else{
+            return resultBuscarDiretor   
+        }
+        
+    } catch (error) {
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER // 500
+    }
+}
+
+
 const tratarDados = async function (diretor) {
 
     diretor.nome = diretor.nome.replaceAll("'", "")
@@ -246,5 +338,6 @@ module.exports = {
     inserirNovoDiretor,
     listarDiretor,
     buscarDiretor,
-    atualizarDiretor
+    atualizarDiretor,
+    excluirDiretor
 }

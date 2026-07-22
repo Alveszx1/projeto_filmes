@@ -15,6 +15,12 @@ const controllerClassificacao = require('../classificacacao/controller_classific
 
 const controllerFilmeGenero = require("./controller_filme_genero.js")
 
+const controllerFilmeDiretor = require("./controller_filme_diretor.js")
+
+const controllerFilmeAtor = require("../filme/controller_filme_ator.js")
+
+const controllerSexo = require("../sexo/controller_sexo.js")
+
 
 const { application } = require("express")
 const { json } = require("body-parser")
@@ -110,6 +116,35 @@ const inserirNovoFilme = async function (filme, contentType) {
             }
         }
 
+
+            for(itemDiretor of filme.diretor){
+                let filmeDiretor = {
+                    "id_filme": filme.id,
+                    "id_diretor": itemDiretor.id
+                }
+
+                let resultFilmeDiretor = await controllerFilmeDiretor.inserirFilmeDiretor(filmeDiretor)
+                console.log(resultFilmeDiretor)
+
+                if(!resultFilmeDiretor.status){
+                    return customMessage.SUCCESS_CREATED_ITEM_WARNING // 201 com alerta de cadastro
+                }
+            }
+
+            for(itemAtor of filme.ator){
+                let filmeAtor = {
+                    "id_filme": filme.id,
+                    "id_ator": itemAtor.id
+                }
+
+                let resultFilmeAtor = await controllerFilmeAtor.inserirFilmeAtor(filmeAtor)
+                console.log(resultFilmeAtor)
+
+                if(!resultFilmeAtor.status){
+                    return customMessage.SUCCESS_CREATED_ITEM_WARNING
+                }
+            }
+
             customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_CREATED_ITEM.status
             customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_CREATED_ITEM.status_code
             customMessage.DEFAULT_MESSAGE.message = customMessage.SUCCESS_CREATED_ITEM.message
@@ -152,24 +187,45 @@ const listarFilme = async function(filme) {
                 //Percorre o array de filmes
                 for(filme of result){
 
-                    //Busca na controller da classificacao o id referente a fk da classificação
                     let resultClassicacao = await controllerClassificacao.buscarClassificacao(filme.id_classificacao)
-
                     let resultGeneroFilme = await controllerFilmeGenero.buscarGeneroIdFilme(filme.id)
+                    let resultDiretorFilme = await controllerFilmeDiretor.buscarDiretorIdFilme(filme.id)
+                    let resultAtorFilme = await controllerFilmeAtor.buscarAtorIdFilme(filme.id)
+
+                    if(resultDiretorFilme.status){
+                        filme.diretor = resultDiretorFilme.response.filme_diretor
+
+                        for(let diretor of filme.diretor){
+                            let resultSexoDiretor = await controllerSexo.buscarSexo(diretor.id_sexo)
+                            if(resultSexoDiretor.status){
+                                diretor.sexo = resultSexoDiretor.response.sexo
+                                delete diretor.id_sexo
+                            }
+                        }
+
+                        delete filme.id_diretor
+                    }
 
                     if(resultGeneroFilme.status){
                         filme.genero = resultGeneroFilme.response.filme_genero
                         delete filme.id_genero
                     }
-                    
 
-                     // Se encontrar o id
                     if(resultClassicacao.status){
-                        //Adicionar um atributo classificação no JSON do filme e colocar o resultado com os dados da classificação
                         filme.classificacao = resultClassicacao.response.classificacao
-
-                        //Apaga o id_classificação do JSON de filme
                         delete filme.id_classificacao
+                    }
+
+                    if(resultAtorFilme.status){
+                        filme.ator = resultAtorFilme.response.filme_ator
+
+                        for(let ator of filme.ator){
+                            let resultSexoAtor = await controllerSexo.buscarSexo(ator.id_sexo)
+                            if(resultSexoAtor.status){
+                                ator.sexo = resultSexoAtor.response.sexo
+                                delete ator.id_sexo
+                            }
+                        }
                     }
                 }
 
@@ -187,6 +243,8 @@ const listarFilme = async function(filme) {
         }
 
     } catch (error) {
+                console.log(error)
+
         return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER //500 (controller)
     }
 }
@@ -216,24 +274,52 @@ const atualizarFilme = async function(filme, id, contentType) {
                     if(result){
                         //Excluir a relação entre o filme e os generos (Tabela de relação)
 
+                          
+
                         let resultDeleteGeneros = await controllerFilmeGenero.deletarGeneroIdFilme(filme.id)
-
-                        if(resultDeleteGeneros.status){
+                            if(!resultDeleteGeneros.status){
+                                return resultDeleteGeneros
+                            }
                             for(itemGenero of filme.genero){
-
                                 let filmeGenero = {
                                     "id_filme": filme.id,
                                     "id_genero": itemGenero.id
                                 }
-                            
-                    
                                 let resulFilmeGenero = await controllerFilmeGenero.inserirFilmeGenero(filmeGenero)
-
                                 if(!resulFilmeGenero.status){
                                     return customMessage.SUCCESS_CREATED_ITEM_WARNING
                                 }
                             }
-                        }
+
+                            let resultDeleteDiretores = await controllerFilmeDiretor.deletarDiretorIdFilme(filme.id)
+                            if(!resultDeleteDiretores.status){
+                                return resultDeleteDiretores
+                            }
+                            for(itemDiretor of filme.diretor){
+                                let filmeDiretor = { 
+                                    id_filme: filme.id,
+                                    id_diretor: itemDiretor.id
+                                }
+                                let resultFilmeDiretor = await controllerFilmeDiretor.inserirFilmeDiretor(filmeDiretor)
+                                if(!resultFilmeDiretor.status){
+                                    return customMessage.SUCCESS_CREATED_ITEM_WARNING
+                                }
+                            }
+
+                            let resultDeleteAtores = await controllerFilmeAtor.deletarAtorIdFilme(filme.id)
+                            if(!resultDeleteAtores.status){
+                                return resultDeleteAtores
+                            }
+                            for(itemAtor of filme.ator){
+                                let filmeAtor = { 
+                                    id_filme: filme.id,
+                                    id_ator: itemAtor.id
+                                }
+                                let resultFilmeAtor = await controllerFilmeAtor.inserirFilmeAtor(filmeAtor)
+                                if(!resultFilmeAtor.status){
+                                    return customMessage.SUCCESS_CREATED_ITEM_WARNING
+                                }
+                            }
 
                          customMessage.DEFAULT_MESSAGE.status       = customMessage.SUCESS_UPDATE_ITEM.status
                          customMessage.DEFAULT_MESSAGE.status_code  = customMessage.SUCESS_UPDATE_ITEM.status_code
@@ -258,6 +344,8 @@ const atualizarFilme = async function(filme, id, contentType) {
         return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
+
+
 // Função para retornar um filme filtrando pelo id 
 const buscarFilme = async function (id) {
     let customMessage = JSON.parse(JSON.stringify(configMessages))
@@ -279,25 +367,46 @@ const buscarFilme = async function (id) {
 
                 for(filme of result){
 
-                    //Busca na controller da classificacao o id referente a fk da classificação
                     let resultClassicacao = await controllerClassificacao.buscarClassificacao(filme.id_classificacao)
                     let resultGeneroFilme = await controllerFilmeGenero.buscarGeneroIdFilme(filme.id)
+                    let resultDiretorFilme = await controllerFilmeDiretor.buscarDiretorIdFilme(filme.id)
+                    let resultAtorFilme = await controllerFilmeAtor.buscarAtorIdFilme(filme.id)
+
+                    if(resultDiretorFilme.status){
+                        filme.diretor = resultDiretorFilme.response.filme_diretor
+
+                        for(let diretor of filme.diretor){
+                            let resultSexoDiretor = await controllerSexo.buscarSexo(diretor.id_sexo)
+                            if(resultSexoDiretor.status){
+                                diretor.sexo = resultSexoDiretor.response.sexo
+                                delete diretor.id_sexo
+                            }
+                        }
+                    }
 
                     if(resultGeneroFilme.status){
                         filme.genero = resultGeneroFilme.response.filme_genero
                     }
                     
-                    
-                     // Se encontrar o id
-                    if(resultClassicacao.status){
-                        //Adicionar um atributo classificação no JSON do filme e colocar o resultado com os dados da classificação
-                        filme.classificacao = resultClassicacao.response.classificacao
+                    if(resultAtorFilme.status){
+                        filme.ator = resultAtorFilme.response.filme_ator
 
-                        //Apaga o id_classificação do JSON de filme
+                        for(let ator of filme.ator){
+                            let resultSexoAtor = await controllerSexo.buscarSexo(ator.id_sexo)
+                            if(resultSexoAtor.status){
+                                ator.sexo = resultSexoAtor.response.sexo
+                                delete ator.id_sexo
+                            }
+                        }
+                }
+    
+                    if(resultClassicacao.status){
+                        filme.classificacao = resultClassicacao.response.classificacao
                         delete filme.id_classificacao
                     }
-                }
-                            //Validação para verificar se o DAO tem algum dado no array
+            }
+
+                  
 
                 if(result.length > 0){
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
@@ -327,15 +436,29 @@ const buscarFilme = async function (id) {
 }
 
 // Função para excluir um filme 
+
 const excluirFilme = async function (id) {
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
     try {
-
-        //Chama a função de buscar filme para validar se o filme existe
         let resultBuscarFilme = await buscarFilme(id)
         
         if(resultBuscarFilme.status){
+
+            let resultDeleteGeneros = await controllerFilmeGenero.deletarGeneroIdFilme(id)
+            if(!resultDeleteGeneros.status){
+                return resultDeleteGeneros
+            }
+
+            let resultDeleteDiretores = await controllerFilmeDiretor.deletarDiretorIdFilme(id)
+            if(!resultDeleteDiretores.status){
+                return resultDeleteDiretores
+            }
+
+            let resultDeleteAtores = await controllerFilmeAtor.deletarAtorIdFilme(id)
+            if(!resultDeleteAtores.status){
+                return resultDeleteAtores
+            }
 
             let result = await filmeDAO.deleteFilme(id)
 
@@ -346,11 +469,11 @@ const excluirFilme = async function (id) {
                 return customMessage.ERROR_INTERNAL_SERVER_MODEL
             }
         }else{
-            return resultBuscarFilme //400 e 404
+            return resultBuscarFilme
         }
         
     } catch (error) {
-        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER // 500
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
 
@@ -358,19 +481,12 @@ const excluirFilme = async function (id) {
 
 //Função para tratar os dados a serem inseridos
 const tratarDados = async function (filme) {
-
     filme.nome = filme.nome.replaceAll("'", "")
     filme.sinopse = filme.sinopse.replaceAll("'", "")
     filme.capa = filme.capa.replaceAll("'", "")
     filme.data_lancamento = filme.data_lancamento.replaceAll("'", "")
     filme.duracao = filme.duracao.replaceAll("'", "")
-    filme.valor = filme.valor.replaceAll("'", "")
-    filme.avaliacao = filme.avaliacao.replaceAll("'", "")
-
-    
-
     return filme
-    
 }
 
 

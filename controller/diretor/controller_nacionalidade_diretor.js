@@ -8,14 +8,14 @@
 //Import de configurações do arquivo de mensagens do projeto
 
 const configMessages = require("../modulo/configMessages.js")
-const filmeDiretorDAO = require("../../model/DAO/filme_diretor/filme_diretor.js")
+const nacionalidadeDiretorDAO = require("../../model/DAO/nacionalidade_diretor/nacionalidade_diretor.js")
 
-const validarDados = async function(filmeDiretor){
+const validarDados = async function(nacionalidadeDiretor){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
-    if(filmeDiretor.id_filme == undefined || filmeDiretor.id_filme == null || filmeDiretor.id_filme.length > 45 || isNaN(filmeDiretor.id_filme) || filmeDiretor.id_filme <= 0){
-        customMessage.ERROR_BAD_REQUEST.field = "[ID_FILME] INVÁLIDO"
+    if(nacionalidadeDiretor.id_nacionalidade == undefined || nacionalidadeDiretor.id_nacionalidade == null || isNaN(nacionalidadeDiretor.id_nacionalidade) || nacionalidadeDiretor.id_nacionalidade <= 0){
+        customMessage.ERROR_BAD_REQUEST.field = "[ID_NACIONALIDADE] INVÁLIDO"
         return customMessage.ERROR_BAD_REQUEST
-    }else if(filmeDiretor.id_diretor == undefined || filmeDiretor.id_diretor == null || filmeDiretor.id_diretor.length > 45 || isNaN(filmeDiretor.id_diretor) || filmeDiretor.id_diretor <= 0){
+    }else if(nacionalidadeDiretor.id_diretor == undefined || nacionalidadeDiretor.id_diretor == null ||  isNaN(nacionalidadeDiretor.id_diretor) || nacionalidadeDiretor.id_diretor <= 0){
         customMessage.ERROR_BAD_REQUEST.field = "[ID_DIRETOR] INVÁLIDO"
         return customMessage.ERROR_BAD_REQUEST
     } else {
@@ -23,25 +23,27 @@ const validarDados = async function(filmeDiretor){
     }
 }
 
-const inserirFilmeDiretor =  async function(filmeDiretor){
+const inserirNacionalidadeDiretor =  async function(nacionalidadeDiretor){
 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
     try {
-            let validacao = await validarDados(filmeDiretor)
+            let validacao = await validarDados(nacionalidadeDiretor)
 
             if(validacao){
                 return validacao
             }else{
-                let result = await filmeDiretorDAO.insertFilmeDiretor(filmeDiretor)
+                let result = await nacionalidadeDiretorDAO.insertNacionalidadeDiretor(nacionalidadeDiretor)
+                
+
 
                 if(result){ // 201
 
-                    filmeDiretor.id = result
+                    nacionalidadeDiretor.id = result
 
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_CREATED_ITEM.status
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_CREATED_ITEM.status_code
                     customMessage.DEFAULT_MESSAGE.message = customMessage.SUCCESS_CREATED_ITEM.message
-                    customMessage.DEFAULT_MESSAGE.response = filmeDiretor
+                    customMessage.DEFAULT_MESSAGE.response = nacionalidadeDiretor
 
                     return customMessage.DEFAULT_MESSAGE
                 } else{
@@ -56,24 +58,161 @@ const inserirFilmeDiretor =  async function(filmeDiretor){
 
 }
 
-const listarFilmeDiretor = async function(){
+const listarNacionalidadeDiretor = async function(){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
     try {
-        let result = await filmeDiretorDAO.selectAllFilmeDiretor()
+        let result = await nacionalidadeDiretorDAO.selectAllNacionalidadeDiretor()
         console.log(result)
 
-        if(result){
-            if(result.length > 0){
-                customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
-                customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
-                customMessage.DEFAULT_MESSAGE.count = result.length
-                customMessage.DEFAULT_MESSAGE.response.filme_diretor = result
+    if(result){
+        if(result.length > 0){
+            customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
+            customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
+            customMessage.DEFAULT_MESSAGE.count = result.length
+            customMessage.DEFAULT_MESSAGE.response.nacionalidade_diretor = result
 
-                return customMessage.DEFAULT_MESSAGE
+            return customMessage.DEFAULT_MESSAGE
+        }else{
+            return customMessage.ERROR_NOT_FOUND
+        }
+    }else{
+        return customMessage.ERROR_INTERNAL_SERVER_MODEL
+    }
+    } catch (error) {
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+const atualizarNacionalidadeDiretor = async function(nacionalidadeDiretor, id){
+    let customMessage = JSON.parse(JSON.stringify(configMessages))
+
+    try {
+        let resultBuscarNacionalidadeDiretor = await buscarNacionalidadeDiretor(id)
+
+        if(resultBuscarNacionalidadeDiretor.status){
+            let validar = await validarDados(nacionalidadeDiretor)
+
+            if(!validar){
+                nacionalidadeDiretor.id = Number(id)
+
+                let result = await nacionalidadeDiretorDAO.updateNacionalidadeDiretor(nacionalidadeDiretor)
+
+                if(result){
+                    customMessage.DEFAULT_MESSAGE.status = customMessage.SUCESS_UPDATE_ITEM.status
+                    customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCESS_UPDATE_ITEM.status_code
+                    customMessage.DEFAULT_MESSAGE.message = customMessage.SUCESS_UPDATE_ITEM.message
+                    customMessage.DEFAULT_MESSAGE.response = nacionalidadeDiretor
+
+                    return customMessage.DEFAULT_MESSAGE
+                }else{
+                    return customMessage.ERROR_INTERNAL_SERVER_MODEL
+                }
             }else{
-                return customMessage.ERROR_NOT_FOUND
+                return validar
             }
+        }else{
+            return resultBuscarNacionalidadeDiretor
+        }
+    } catch (error) {
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+//Função para buscar diretor pelo id da nacionalidade 
+const buscarDiretorIdNacionalidade = async function (id) {
+    let customMessage = JSON.parse(JSON.stringify(configMessages))
+
+    try {
+        if(id == undefined || id == "" || id == null || isNaN(id) || id < 1 ){
+            customMessage.ERROR_BAD_REQUEST.field = "[ID_NACIONALIDADE] INVÁLIDO"
+            return customMessage.ERROR_BAD_REQUEST
+        } else {
+            let result = await nacionalidadeDiretorDAO.selectDiretorByIdNacionalidade(id)
+
+            if(result){
+                if(result.length > 0){
+                    customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
+                    customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
+                    customMessage.DEFAULT_MESSAGE.response.nacionalidadeDiretor =  result 
+                    return customMessage.DEFAULT_MESSAGE
+                }else{
+                    return customMessage.ERROR_NOT_FOUND
+                }
+            }else{
+                return customMessage.ERROR_INTERNAL_SERVER_MODEL
+            }
+        }
+    } catch (error) {
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+// Funlção para buscar nacionalidade pelo id do diretor
+const buscarNacionalidadesByIdDiretor = async function (id) {
+    let customMessage = JSON.parse(JSON.stringify(configMessages))
+
+    try {
+        if(id == undefined || id == "" || id == null || isNaN(id) || id < 1 ){
+            customMessage.ERROR_BAD_REQUEST.field = "[ID_DIRETOR] INVÁLIDO"
+            return customMessage.ERROR_BAD_REQUEST
+        } else {
+            let result = await nacionalidadeDiretorDAO.selectNacionalidadeByIdDiretor(id)
+
+            if(result){
+                if(result.length > 0){
+                    customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
+                    customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
+                    customMessage.DEFAULT_MESSAGE.response.nacionalidade = result 
+                    return customMessage.DEFAULT_MESSAGE
+                }else{
+                    return customMessage.ERROR_NOT_FOUND
+                }
+            }else{
+                return customMessage.ERROR_INTERNAL_SERVER_MODEL
+            }
+        }
+    } catch (error) {
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+const buscarNacionalidadeDiretor = async function (id) {
+    let customMessage = JSON.parse(JSON.stringify(configMessages))
+
+    try {
+        if(id == undefined || id == "" || id == null || isNaN(id) || id < 1 ){
+            customMessage.ERROR_BAD_REQUEST.field = "[ID] INVÁLIDO"
+            return customMessage.ERROR_BAD_REQUEST
+        } else {
+            let result = await nacionalidadeDiretorDAO.selectByIdNacionalidadeDiretor(id)
+
+            if(result){
+                if(result.length > 0){
+                    customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
+                    customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
+                    customMessage.DEFAULT_MESSAGE.response.nacionalidadeDiretor = result
+                    return customMessage.DEFAULT_MESSAGE
+                }else{
+                    return customMessage.ERROR_NOT_FOUND
+                }
+            }else{
+                return customMessage.ERROR_INTERNAL_SERVER_MODEL
+            }
+        }
+    } catch (error) {
+        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
+    }
+}
+
+const deletarDiretorIdNacionalidade = async function(id){
+    let customMessage = JSON.parse(JSON.stringify(configMessages))
+
+    try {
+        let result = await nacionalidadeDiretorDAO.deleteDiretorByIdNacionalidade(id)
+
+        if(result){
+            return customMessage.SUCCESS_DELETED_ITEM
         }else{
             return customMessage.ERROR_INTERNAL_SERVER_MODEL
         }
@@ -82,171 +221,14 @@ const listarFilmeDiretor = async function(){
     }
 }
 
-const atualizarFilmeDiretor = async function(filmeDiretor, id){
+const deletarNacionalidadeDiretor = async function(id){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
     try {
-            let resultBuscarDiretor = await buscarFilmeDiretor(id)
-    
-            if(resultBuscarDiretor.status){
-    
-                let validar = await validarDados(filmeDiretor)
-    
-                if(!validar){
-    
-                    filmeDiretor.id = Number(id)
-    
-                    let result = await filmeDiretorDAO.updateFilmeDiretor(filmeDiretor)
-    
-                    if(result){
-                        customMessage.DEFAULT_MESSAGE.status = customMessage.SUCESS_UPDATE_ITEM.status
-                        customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCESS_UPDATE_ITEM.status_code
-                        customMessage.DEFAULT_MESSAGE.message = customMessage.SUCESS_UPDATE_ITEM.message
-                        customMessage.DEFAULT_MESSAGE.response = filmeDiretor
+        let resultBuscarNacionalidadeDiretor = await buscarNacionalidadeDiretor(id)
 
-                        return customMessage.DEFAULT_MESSAGE
-                    }else{
-                        return customMessage.ERROR_INTERNAL_SERVER_MODEL
-                    }
-                }else{
-                    return validar
-                }
-            }else{
-                return resultBuscarDiretor
-            }
-        
-    } catch (error) {
-        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
-
-//Função para buscar o diretor filtrando pelo ID do filme
-const buscarDiretorIdFilme = async function (id) {
-
-    let customMessage = JSON.parse(JSON.stringify(configMessages))
-
-    try {
-        if(id == undefined || id == "" || id == null || isNaN(id) || id < 1 ){
-            customMessage.ERROR_BAD_REQUEST.field = "[ID_FILME] INVÁLIDO"
-            return customMessage.ERROR_BAD_REQUEST
-        } else {
-
-            let result = await filmeDiretorDAO.selectDiretorByIdFilme(id)
-
-            if(result){
-
-                if(result.length > 0){
-                    customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
-                    customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
-                    customMessage.DEFAULT_MESSAGE.response.filme_diretor = result
-
-                    return customMessage.DEFAULT_MESSAGE
-                }else{
-                    return customMessage.ERROR_NOT_FOUND
-                }
-            }else{
-                return customMessage.ERROR_INTERNAL_SERVER_MODEL
-            }
-        }
-    } catch (error) {
-        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
-
-// Função para buscar filmes filtrando pelo id do diretor
-const buscarFilmesIdDiretor = async function (id) {
-
-    let customMessage = JSON.parse(JSON.stringify(configMessages))
-
-    try {
-        if(id == undefined || id == "" || id == null || isNaN(id) || id < 1 ){
-            customMessage.ERROR_BAD_REQUEST.field = "[ID_DIRETOR] INVÁLIDO"
-            return customMessage.ERROR_BAD_REQUEST
-        } else {
-
-            let result = await filmeDiretorDAO.selectFilmeByIdDiretor(id)
-
-            if(result){
-
-                if(result.length > 0){
-                    customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
-                    customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
-                    customMessage.DEFAULT_MESSAGE.response.filme_diretor = result
-
-                    return customMessage.DEFAULT_MESSAGE
-                }else{
-                    return customMessage.ERROR_NOT_FOUND
-                }
-            }else{
-                return customMessage.ERROR_INTERNAL_SERVER_MODEL
-            }
-        }
-    } catch (error) {
-        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
-
-const buscarFilmeDiretor = async function (id) {
-
-    let customMessage = JSON.parse(JSON.stringify(configMessages))
-
-    try {
-        if(id == undefined || id == "" || id == null || isNaN(id) || id < 1 ){
-            customMessage.ERROR_BAD_REQUEST.field = "[ID] INVÁLIDO"
-            return customMessage.ERROR_BAD_REQUEST
-        } else {
-
-            let result = await filmeDiretorDAO.selectByIdFilmeDiretor(id)
-
-            if(result){
-
-                if(result.length > 0){
-                    customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
-                    customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
-                    customMessage.DEFAULT_MESSAGE.response.filme_diretor = result
-
-                    return customMessage.DEFAULT_MESSAGE
-                }else{
-                    return customMessage.ERROR_NOT_FOUND
-                }
-            }else{
-                return customMessage.ERROR_INTERNAL_SERVER_MODEL
-            }
-        }
-    } catch (error) {
-        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
-
-
-const deletarDiretorIdFilme = async function(id){
-    let customMessage = JSON.parse(JSON.stringify(configMessages))
-
-    try {
-            let result = await filmeDiretorDAO.deleteDiretorByIdFilme(id)
-            console.log(result)
-
-            if(result){
-                return customMessage.SUCCESS_DELETED_ITEM
-            }else{
-                return customMessage.ERROR_INTERNAL_SERVER_MODEL
-            }
-    } catch (error) {
-        return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
-    }
-}
-
-
-//Função para excluir a relação de diretor com o filme
-const deletarFilmeDiretor = async function(id){
-    let customMessage = JSON.parse(JSON.stringify(configMessages))
-
-    try {
-        let resultBuscarFilmeDiretor = await buscarFilmeDiretor(id)
-
-        if(resultBuscarFilmeDiretor.status){
-            let result = await filmeDiretorDAO.deleteFilmeDiretor(id)
-            console.log(result)
+        if(resultBuscarNacionalidadeDiretor.status){
+            let result = await nacionalidadeDiretorDAO.deleteNacionalidadeDiretor(id)
 
             if(result){
                 return customMessage.SUCCESS_DELETED_ITEM
@@ -254,7 +236,7 @@ const deletarFilmeDiretor = async function(id){
                 return customMessage.ERROR_INTERNAL_SERVER_MODEL
             }
         }else{
-            return resultBuscarFilmeDiretor
+            return resultBuscarNacionalidadeDiretor
         }
     } catch (error) {
         return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
@@ -262,12 +244,12 @@ const deletarFilmeDiretor = async function(id){
 }
 
 module.exports = {
-    inserirFilmeDiretor,
-    listarFilmeDiretor,
-    buscarFilmeDiretor,
-    atualizarFilmeDiretor,
-    deletarFilmeDiretor,
-    buscarFilmesIdDiretor,
-    buscarDiretorIdFilme,
-    deletarDiretorIdFilme
+    inserirNacionalidadeDiretor,
+    listarNacionalidadeDiretor,
+    buscarNacionalidadeDiretor,
+    atualizarNacionalidadeDiretor,
+    deletarNacionalidadeDiretor,
+    buscarNacionalidadesByIdDiretor,
+    buscarDiretorIdNacionalidade,
+    deletarDiretorIdNacionalidade
 }

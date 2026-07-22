@@ -1,6 +1,7 @@
 const configMessages = require("../modulo/configMessages.js")
 const atorDAO = require("../../model/DAO/ator/ator.js")
 const controllerSexo = require("../../controller/sexo/controller_sexo.js")
+const controllerNacionalidadeAtor = require("../../controller/ator/controller_nacionalidade_ator.js")
 
 
 const validarDados = async function(ator){
@@ -43,12 +44,28 @@ const inserirNovoAtor =  async function(ator, contentType){
                 return validacao
             }else{
                 let result = await atorDAO.insertAtor(await(tratarDados(ator)))
-                console.log(result)
+
+                ator.id = result
+
+
 
 
                 if(result){ // 201
 
-                    ator.id = result
+                    for(itemNacionalidade of ator.nacionalidade){
+                        let nacionalidadeAtor = {
+                            id_ator: ator.id,
+                            id_nacionalidade: itemNacionalidade.id
+                        }
+
+                        let resultNacionalidadeAtor = await controllerNacionalidadeAtor.inserirNacionalidadeAtor(nacionalidadeAtor)
+                        console.log(resultNacionalidadeAtor)
+
+                        if(!resultNacionalidadeAtor.status){
+                            return customMessage.SUCCESS_CREATED_ITEM_WARNING
+                        }
+                    }
+
 
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_CREATED_ITEM.status
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_CREATED_ITEM.status_code
@@ -64,7 +81,6 @@ const inserirNovoAtor =  async function(ator, contentType){
             return customMessage.ERROR_CONTENT_TYPE
         }
     } catch (error) {
-        console.log(error)
         return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 
@@ -101,6 +117,13 @@ const listarAtor = async function() {
                         //Apaga o id_classificação do JSON de filme
                         delete ator.id_sexo
                     }
+
+
+                    let resultNacionalidadeAtor = await controllerNacionalidadeAtor.buscarNacionalidadesByIdAtor(ator.id)
+
+                    if(resultNacionalidadeAtor.status){
+                        ator.nacionalidade = resultNacionalidadeAtor.response.nacionalidade
+                    }
                 }
 
                 customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
@@ -132,14 +155,21 @@ const buscarAtor = async function (id) {
 
         }else{
 
-            //Chama a função do DAO para pesquisar o filme pelo ID
+            //Chama a função do DAO para pesquisar o Ator pelo ID
             let result = await atorDAO.selectAtorById(id)
 
 
 
                 for(ator of result){
 
+                    
                     //Busca na controller da classificacao o id referente a fk da classificação
+                    let resultNacionalidade = await controllerNacionalidadeAtor.buscarNacionalidadesByIdAtor(ator.id)
+
+                    if(resultNacionalidade.status){
+                        ator.nacionalidade = resultNacionalidade.response.nacionalidade
+                    }
+
                     let resultSexo = await controllerSexo.buscarSexo(ator.id_sexo)
                     
 
@@ -204,6 +234,23 @@ const atualizarAtor = async function(ator, id , contentType){
                     let result = await atorDAO.updateAtor(await tratarDados(ator))
     
                     if(result){
+
+                        let resultDeleteNacionalidade = await controllerNacionalidadeAtor.deletarNacionalidadeAtor(ator.id)
+
+                        
+
+                            for(itemNacionalidade of ator.nacionalidade){
+                                let nacionalidadeAtor = {
+                                    "id_ator": ator.id,
+                                    "id_nacionalidade": itemNacionalidade.id
+                                }
+
+                                let resultNacionalidadeAtor = await controllerNacionalidadeAtor.inserirNacionalidadeAtor(nacionalidadeAtor)
+
+                                if(!resultNacionalidadeAtor.status){
+                                    return customMessage.SUCCESS_CREATED_ITEM_WARNING
+                                }
+                            }
                         customMessage.DEFAULT_MESSAGE.status = customMessage.SUCESS_UPDATE_ITEM.status
     
                         customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCESS_UPDATE_ITEM.status_code
@@ -227,6 +274,7 @@ const atualizarAtor = async function(ator, id , contentType){
             return customMessage.ERROR_CONTENT_TYPE
         }
     } catch (error) {
+        console.log(error)
         return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
@@ -242,6 +290,11 @@ const deletarAtor = async function(id){
 
         if(resultBuscarAtor.status){
 
+            let resultDeleteNacionalidade = await controllerNacionalidadeAtor.deletarNacionalidadeAtor(id)
+
+            if(!resultDeleteNacionalidade.status){
+                return resultDeleteNacionalidade
+            }
 
             let result = await atorDAO.deleteAtor(id)
 

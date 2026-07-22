@@ -8,40 +8,42 @@
 //Import de configurações do arquivo de mensagens do projeto
 
 const configMessages = require("../modulo/configMessages.js")
-const filmeDiretorDAO = require("../../model/DAO/filme_diretor/filme_diretor.js")
+const filmeAtorDAO = require("../../model/DAO/filme_ator/filme_ator.js")
 
-const validarDados = async function(filmeDiretor){
+const validarDados = async function(filmeAtor){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
-    if(filmeDiretor.id_filme == undefined || filmeDiretor.id_filme == null || filmeDiretor.id_filme.length > 45 || isNaN(filmeDiretor.id_filme) || filmeDiretor.id_filme <= 0){
+    if(filmeAtor.id_filme == undefined || filmeAtor.id_filme == null  || isNaN(filmeAtor.id_filme) || filmeAtor.id_filme <= 0){
         customMessage.ERROR_BAD_REQUEST.field = "[ID_FILME] INVÁLIDO"
         return customMessage.ERROR_BAD_REQUEST
-    }else if(filmeDiretor.id_diretor == undefined || filmeDiretor.id_diretor == null || filmeDiretor.id_diretor.length > 45 || isNaN(filmeDiretor.id_diretor) || filmeDiretor.id_diretor <= 0){
-        customMessage.ERROR_BAD_REQUEST.field = "[ID_DIRETOR] INVÁLIDO"
+    }else if(filmeAtor.id_ator == undefined || filmeAtor.id_ator == null || isNaN(filmeAtor.id_ator) || filmeAtor.id_ator <= 0){
+        customMessage.ERROR_BAD_REQUEST.field = "[ID_ATOR] INVÁLIDO"
         return customMessage.ERROR_BAD_REQUEST
     } else {
         return false
     }
 }
 
-const inserirFilmeDiretor =  async function(filmeDiretor){
+const inserirFilmeAtor =  async function(filmeAtor){
 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
     try {
-            let validacao = await validarDados(filmeDiretor)
+            let validacao = await validarDados(filmeAtor)
 
             if(validacao){
                 return validacao
             }else{
-                let result = await filmeDiretorDAO.insertFilmeDiretor(filmeDiretor)
+                let result = await filmeAtorDAO.insertFilmeAtor(filmeAtor)
+                
+
 
                 if(result){ // 201
 
-                    filmeDiretor.id = result
+                    filmeAtor.id = result
 
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_CREATED_ITEM.status
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_CREATED_ITEM.status_code
                     customMessage.DEFAULT_MESSAGE.message = customMessage.SUCCESS_CREATED_ITEM.message
-                    customMessage.DEFAULT_MESSAGE.response = filmeDiretor
+                    customMessage.DEFAULT_MESSAGE.response = filmeAtor
 
                     return customMessage.DEFAULT_MESSAGE
                 } else{
@@ -56,72 +58,79 @@ const inserirFilmeDiretor =  async function(filmeDiretor){
 
 }
 
-const listarFilmeDiretor = async function(){
+const listarFilmeAtor = async function(){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
     try {
-        let result = await filmeDiretorDAO.selectAllFilmeDiretor()
+        let result = await filmeAtorDAO.selectAllFilmeAtor()
         console.log(result)
 
-        if(result){
-            if(result.length > 0){
-                customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
-                customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
-                customMessage.DEFAULT_MESSAGE.count = result.length
-                customMessage.DEFAULT_MESSAGE.response.filme_diretor = result
+    if(result){
+        if(result.length > 0){
+            customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
+            customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
+            customMessage.DEFAULT_MESSAGE.count = result.length
+            customMessage.DEFAULT_MESSAGE.response.filme_ator = result
 
-                return customMessage.DEFAULT_MESSAGE
-            }else{
-                return customMessage.ERROR_NOT_FOUND
-            }
+            return customMessage.DEFAULT_MESSAGE
         }else{
-            return customMessage.ERROR_INTERNAL_SERVER_MODEL
+            return customMessage.ERROR_NOT_FOUND
         }
+    }else{
+        return customMessage.ERROR_INTERNAL_SERVER_MODEL
+    }
     } catch (error) {
         return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
 
-const atualizarFilmeDiretor = async function(filmeDiretor, id){
+const atualizarFilmeAtor = async function(filmeAtor, id){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
+
     try {
-            let resultBuscarDiretor = await buscarFilmeDiretor(id)
+            let resultBuscarAtor = await buscarFilmeAtor(id)
     
-            if(resultBuscarDiretor.status){
+            if(resultBuscarAtor.status){
     
-                let validar = await validarDados(filmeDiretor)
+                let validar = await validarDados(filmeAtor)
     
                 if(!validar){
     
-                    filmeDiretor.id = Number(id)
+                    filmeAtor.id = Number(id)
     
-                    let result = await filmeDiretorDAO.updateFilmeDiretor(filmeDiretor)
+                    let result = await filmeAtorDAO.updateFilmeAtor(filmeAtor)
     
                     if(result){
                         customMessage.DEFAULT_MESSAGE.status = customMessage.SUCESS_UPDATE_ITEM.status
+    
                         customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCESS_UPDATE_ITEM.status_code
+    
+    
                         customMessage.DEFAULT_MESSAGE.message = customMessage.SUCESS_UPDATE_ITEM.message
-                        customMessage.DEFAULT_MESSAGE.response = filmeDiretor
-
+    
+                        customMessage.DEFAULT_MESSAGE.response = filmeAtor
+    
                         return customMessage.DEFAULT_MESSAGE
                     }else{
+
                         return customMessage.ERROR_INTERNAL_SERVER_MODEL
                     }
                 }else{
                     return validar
                 }
             }else{
-                return resultBuscarDiretor
+                return resultBuscarAtor
             }
         
     } catch (error) {
+
         return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
 
-//Função para buscar o diretor filtrando pelo ID do filme
-const buscarDiretorIdFilme = async function (id) {
+//Função para buscar os atores filtrando pelo ID do filme
+const buscarAtorIdFilme = async function (id) {
 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
@@ -131,14 +140,16 @@ const buscarDiretorIdFilme = async function (id) {
             return customMessage.ERROR_BAD_REQUEST
         } else {
 
-            let result = await filmeDiretorDAO.selectDiretorByIdFilme(id)
+            let result = await filmeAtorDAO.selectAtorByIdFilme(id)
 
             if(result){
 
                 if(result.length > 0){
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
+
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
-                    customMessage.DEFAULT_MESSAGE.response.filme_diretor = result
+
+                    customMessage.DEFAULT_MESSAGE.response.filme_ator = result
 
                     return customMessage.DEFAULT_MESSAGE
                 }else{
@@ -153,25 +164,27 @@ const buscarDiretorIdFilme = async function (id) {
     }
 }
 
-// Função para buscar filmes filtrando pelo id do diretor
-const buscarFilmesIdDiretor = async function (id) {
+// Função para buscar filmes filtrando pelo id do ator
+const buscarFilmesIdAtor = async function (id) {
 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
     try {
         if(id == undefined || id == "" || id == null || isNaN(id) || id < 1 ){
-            customMessage.ERROR_BAD_REQUEST.field = "[ID_DIRETOR] INVÁLIDO"
+            customMessage.ERROR_BAD_REQUEST.field = "[ID_ATOR] INVÁLIDO"
             return customMessage.ERROR_BAD_REQUEST
         } else {
 
-            let result = await filmeDiretorDAO.selectFilmeByIdDiretor(id)
+            let result = await filmeAtorDAO.selectFilmeByIdAtor(id)
 
             if(result){
 
                 if(result.length > 0){
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
+
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
-                    customMessage.DEFAULT_MESSAGE.response.filme_diretor = result
+
+                    customMessage.DEFAULT_MESSAGE. response.filme_ator = result
 
                     return customMessage.DEFAULT_MESSAGE
                 }else{
@@ -186,7 +199,8 @@ const buscarFilmesIdDiretor = async function (id) {
     }
 }
 
-const buscarFilmeDiretor = async function (id) {
+
+const buscarFilmeAtor = async function (id) {
 
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
@@ -196,14 +210,16 @@ const buscarFilmeDiretor = async function (id) {
             return customMessage.ERROR_BAD_REQUEST
         } else {
 
-            let result = await filmeDiretorDAO.selectByIdFilmeDiretor(id)
+            let result = await filmeAtorDAO.selectByIdFilmeAtor(id)
 
             if(result){
 
                 if(result.length > 0){
                     customMessage.DEFAULT_MESSAGE.status = customMessage.SUCCESS_RESPONSE.status
+
                     customMessage.DEFAULT_MESSAGE.status_code = customMessage.SUCCESS_RESPONSE.status_code
-                    customMessage.DEFAULT_MESSAGE.response.filme_diretor = result
+
+                    customMessage.DEFAULT_MESSAGE. response.filme_ator = result
 
                     return customMessage.DEFAULT_MESSAGE
                 }else{
@@ -218,56 +234,73 @@ const buscarFilmeDiretor = async function (id) {
     }
 }
 
-
-const deletarDiretorIdFilme = async function(id){
+const deletarAtorIdFilme = async function(id){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
+
     try {
-            let result = await filmeDiretorDAO.deleteDiretorByIdFilme(id)
+
+
+        
+
+
+            let result = await filmeAtorDAO.deleteAtorByIdFilme(id)
             console.log(result)
+
 
             if(result){
                 return customMessage.SUCCESS_DELETED_ITEM
             }else{
                 return customMessage.ERROR_INTERNAL_SERVER_MODEL
             }
+
+
+        
     } catch (error) {
         return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
 
-
-//Função para excluir a relação de diretor com o filme
-const deletarFilmeDiretor = async function(id){
+//Funçõão para excluir a relação de atores com o filme
+const deletarFilmeAtor = async function(id){
     let customMessage = JSON.parse(JSON.stringify(configMessages))
 
-    try {
-        let resultBuscarFilmeDiretor = await buscarFilmeDiretor(id)
 
-        if(resultBuscarFilmeDiretor.status){
-            let result = await filmeDiretorDAO.deleteFilmeDiretor(id)
+    try {
+
+        let resultBuscarFilmeAtor = await buscarFilmeAtor(id)
+
+        if(resultBuscarFilmeAtor.status){
+
+
+            let result = await filmeAtorDAO.deleteFilmeAtor(id)
             console.log(result)
+
 
             if(result){
                 return customMessage.SUCCESS_DELETED_ITEM
             }else{
                 return customMessage.ERROR_INTERNAL_SERVER_MODEL
             }
+
         }else{
-            return resultBuscarFilmeDiretor
+            return resultBuscarFilmeAtor
         }
+        
     } catch (error) {
         return customMessage.ERROR_INTERNAL_SERVER_CONTROLLER
     }
 }
+
 
 module.exports = {
-    inserirFilmeDiretor,
-    listarFilmeDiretor,
-    buscarFilmeDiretor,
-    atualizarFilmeDiretor,
-    deletarFilmeDiretor,
-    buscarFilmesIdDiretor,
-    buscarDiretorIdFilme,
-    deletarDiretorIdFilme
+    inserirFilmeAtor,
+    listarFilmeAtor,
+    buscarFilmeAtor,
+    atualizarFilmeAtor,
+    deletarFilmeAtor,
+    buscarFilmesIdAtor,
+    buscarAtorIdFilme,
+    deletarAtorIdFilme
+
 }

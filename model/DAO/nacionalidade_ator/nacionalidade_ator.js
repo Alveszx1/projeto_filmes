@@ -6,14 +6,14 @@ const knexDatabaseConfig = require("../../database_config/knexConfig.js")
 // Criar a conexão com o BD Mysql conforme o arquivo de configuração
 const knexConection = knex(knexDatabaseConfig.development)
 
-const insertFilmeDiretor = async function(filmeDiretor){
+const insertNacionalidadeAtor = async function(nacionalidadeAtor){
     try {
-        let sql = `insert into tbl_filme_diretor (
-        id_filme,
-        id_diretor
+        let sql = `insert into tbl_nacionalidade_ator (
+        id_nacionalidade,
+        id_ator
     ) values (
-        ${filmeDiretor.id_filme},
-        ${filmeDiretor.id_diretor}
+        ${nacionalidadeAtor.id_nacionalidade},
+        ${nacionalidadeAtor.id_ator}
     );`
     let result = await knexConection.raw(sql)
     if(result)
@@ -27,13 +27,13 @@ const insertFilmeDiretor = async function(filmeDiretor){
     }
 }
 
-const updateFilmeDiretor = async function(filmeDiretor){
+const updateNacionalidadeAtor = async function(nacionalidadeAtor){
     try {
 
-        let sql = `update tbl_filme_diretor set    
-        id_filme = ${filmeDiretor.id_filme},
-        id_diretor = ${filmeDiretor.id_diretor}
-        where id = ${filmeDiretor.id};`
+        let sql = `update tbl_nacionalidade_ator set    
+        id_nacionalidade = ${nacionalidadeAtor.id_nacionalidade},
+        id_ator = ${nacionalidadeAtor.id_ator}
+        where id = ${nacionalidadeAtor.id};`
         
         let result = await knexConection.raw(sql)
 
@@ -48,9 +48,9 @@ const updateFilmeDiretor = async function(filmeDiretor){
     }
 }
 
-const selectAllFilmeDiretor = async function(filmeDiretor){
+const selectAllNacionalidadeAtor = async function(nacionalidadeAtor){
    try {
-        let sql = "select * from tbl_filme_diretor order by id desc"
+        let sql = "select * from tbl_nacionalidade_ator order by id desc"
 
         let result = await knexConection.raw(sql)
 
@@ -64,10 +64,10 @@ const selectAllFilmeDiretor = async function(filmeDiretor){
    }
 }
 
-const selectByIdFilmeDiretor = async function(id) {
+const selectByIdNacionalidadeAtor = async function(id) {
     try {
         
-        let sql = `SELECT * FROM tbl_filme_diretor
+        let sql = `SELECT * FROM tbl_nacionalidade_ator
         WHERE id = ${id};`
         
 
@@ -86,25 +86,24 @@ const selectByIdFilmeDiretor = async function(id) {
 }
 
 //Função para retornar os dados do diretor filtrando pelo id do filme
-const selectDiretorByIdFilme = async function(idFilme) {
+const selectNacionalidadeByIdAtor = async function(idAtor) {
     try {
-        
-        let sql = `select tbl_diretor.*
 
-        FROM tbl_filme 
+        let sql = `SELECT tbl_nacionalidade.*
 
-            inner join tbl_filme_diretor
-                on tbl_filme.id = tbl_filme_diretor.id_filme
+        FROM tbl_nacionalidade
 
-            inner join tbl_diretor
-                on tbl_diretor.id = tbl_filme_diretor.id_diretor
+            INNER JOIN tbl_nacionalidade_ator
+                ON tbl_nacionalidade.id = tbl_nacionalidade_ator.id_nacionalidade
 
-        WHERE tbl_filme.id = ${idFilme};`
-        
+            INNER JOIN tbl_ator
+                ON tbl_ator.id = tbl_nacionalidade_ator.id_ator
+
+        WHERE tbl_ator.id = ${idAtor};`
 
         let result = await knexConection.raw(sql)
 
-        if(Array.isArray(result))
+        if (Array.isArray(result))
             return result[0]
         else
             return false
@@ -118,19 +117,19 @@ const selectDiretorByIdFilme = async function(idFilme) {
 
 
 //Filtra filme pelo id do diretor
-const selectFilmeByIdDiretor = async function(id_diretor) {
+const selectAtorByIdNacionalidade = async function(id_nacionalidade) {
     try {
         
-        let sql = `select tbl_filme.*
+        let sql = `select tbl_ator.*
 
-        FROM tbl_filme
-            inner join tbl_filme_diretor
-                on tbl_filme.id = tbl_filme_diretor.id_filme
+        FROM tbl_ator
+            inner join tbl_nacionalidade_ator
+                on tbl_ator.id = tbl_nacionalidade_ator.id_ator
 
-            inner join tbl_diretor
-                on tbl_diretor.id = tbl_filme_diretor.id_diretor
+            inner join tbl_nacionalidade
+                on tbl_nacionalidade.id = tbl_nacionalidade_ator.id_nacionalidade
                 
-        WHERE tbl_diretor.id = ${id_diretor};`
+        WHERE tbl_nacionalidade.id = ${id_nacionalidade};`
         
 
         let result = await knexConection.raw(sql)
@@ -147,9 +146,9 @@ const selectFilmeByIdDiretor = async function(id_diretor) {
     }
 }
 
-const deleteFilmeDiretor = async function(id){
+const deleteNacionalidadeAtor = async function(id){
     try {
-        let sql = `DELETE FROM tbl_filme_diretor WHERE id=${id};`
+        let sql = `DELETE FROM tbl_nacionalidade_ator WHERE id_ator=${id};`
 
         let result = await knexConection.raw(sql)
         console.log(result)
@@ -164,9 +163,9 @@ const deleteFilmeDiretor = async function(id){
 }
 
 //Esta função será utilizada no put do filme
-const deleteDiretorByIdFilme = async function(id){
+const deleteAtorByIdNacionalidade = async function(id){
     try {
-        let sql = `DELETE FROM tbl_filme_diretor WHERE id_filme=${id};`
+        let sql = `DELETE FROM tbl_nacionalidade_ator WHERE id_nacionalidade=${id};`
 
         let result = await knexConection.raw(sql)
         console.log(result)
@@ -181,12 +180,12 @@ const deleteDiretorByIdFilme = async function(id){
 }
 
 module.exports = {
-    insertFilmeDiretor,
-    updateFilmeDiretor,
-    selectAllFilmeDiretor,
-    selectByIdFilmeDiretor,
-    selectDiretorByIdFilme,
-    selectFilmeByIdDiretor,
-    deleteFilmeDiretor,
-    deleteDiretorByIdFilme
+    insertNacionalidadeAtor,
+    updateNacionalidadeAtor,
+    selectAllNacionalidadeAtor,
+    selectByIdNacionalidadeAtor,
+    selectNacionalidadeByIdAtor,
+    selectAtorByIdNacionalidade,
+    deleteNacionalidadeAtor,
+    deleteAtorByIdNacionalidade
 }

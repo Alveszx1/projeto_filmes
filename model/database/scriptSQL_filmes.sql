@@ -88,10 +88,6 @@ update tbl_genero set
     
 DELETE FROM tbl_genero WHERE id = 2;
 
-create table tbl_genero(
-	id int not null auto_increment primary key,
-    genero varchar(45) not null
-);
 
 create table tbl_sexo(
 	id int not null auto_increment primary key,
@@ -185,7 +181,77 @@ INSERT INTO tbl_ator (
     3
 );
 
-select * from tbl_ator
+select * from tbl_ator;
 
+create table tbl_diretor (
+	id int not null auto_increment primary key,
+    nome varchar(80) not null,
+    data_nascimento date not null,
+    biografia text not null,
+    id_sexo int not null,
+    
+    constraint fk_sexo_diretor
+    foreign key (id_sexo)
+    references tbl_sexo(id)
+);
+
+create table tbl_filme_diretor(
+	id int not null auto_increment primary key,
+    id_filme int not null,
+    id_diretor int not null,
+    
+    constraint fk_filme_filmediretor
+    foreign key (id_filme)
+    references tbl_filme(id),
+    
+    constraint fk_diretor_filmediretor
+    foreign key (id_diretor)
+    references tbl_diretor(id)
+);
+
+create table tbl_nacionalidade_diretor(
+	id int not null auto_increment primary key,
+    id_diretor int not null,
+    id_nacionalidade int not null,
+    
+    constraint fk_diretor_nacionalidadediretor
+    foreign key (id_diretor)
+    references tbl_diretor(id),
+    
+    constraint fk_nacionalidade_nacionalidadediretor
+    foreign key (id_nacionalidade)
+    references tbl_nacionalidade(id)
+);
+
+create table tbl_filme_ator(
+	id int not null auto_increment primary key,
+    id_filme int not null,
+    id_ator int not null,
+    papel_ator varchar(45) not null,
+    
+    constraint fk_filme_filmeator
+    foreign key (id_filme)
+    references tbl_filme(id),
+    
+    constraint fk_ator_filmeator
+    foreign key (id_ator)
+    references tbl_ator(id)
+);
+
+create table tbl_nacionalidade_ator(
+	id int not null auto_increment primary key,
+    id_ator int not null,
+    id_nacionalidade int not null,
+    
+    constraint fk_ator_nacionalidadeator
+    foreign key (id_ator)
+    references tbl_ator(id),
+    
+    constraint fk_nacionalidade_nacionalidadeator
+    foreign key (id_nacionalidade)
+    references tbl_nacionalidade(id)
+);
+
+    
    
 

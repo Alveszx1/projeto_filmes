@@ -12,13 +12,11 @@ const insertDiretor = async function(diretor){
         let sql = `INSERT INTO tbl_diretor (
     nome,
     data_nascimento,
-    foto,
     biografia,
     id_sexo
 ) VALUES (
     '${diretor.nome}',
     '${diretor.data_nascimento}',
-    '${diretor.foto}',
     '${diretor.biografia}',
      ${diretor.id_sexo}
 );`
@@ -37,7 +35,7 @@ const insertDiretor = async function(diretor){
 const selectAllDiretor = async function () {
     try {
         // Script SQL para listar todos os filmes cadastrados
-        let sql = "select * from tbl_ator order by id desc"
+        let sql = "select * from tbl_diretor order by id desc"
 
         //Executa no banco de dados o script e guarda o retorno do banco
         //Pode ser um erro (false) ou um array com os dados
@@ -60,7 +58,7 @@ const selectAllDiretor = async function () {
 const selectDiretorById = async function(id) {
     try {
         
-        let sql = `SELECT * FROM tbl_ator
+        let sql = `SELECT * FROM tbl_diretor
         WHERE id = ${id};`
         
 
@@ -80,15 +78,14 @@ const selectDiretorById = async function(id) {
 }
 
 
-const updateDiretor = async function (ator) {
+const updateDiretor = async function (diretor) {
     try {
-        let sql = `update tbl_ator set 
-    nome = '${ator.nome}',
-    data_nascimento = '${ator.data_nascimento}',
-    foto = '${ator.foto}',
-    biografia = '${ator.biografia}',
-    id_sexo = '${ator.id_sexo}'
-    where id = ${ator.id};`
+        let sql = `update tbl_diretor set 
+    nome = '${diretor.nome}',
+    data_nascimento = '${diretor.data_nascimento}',
+    biografia = '${diretor.biografia}',
+    id_sexo = '${diretor.id_sexo}'
+    where id = ${diretor.id};`
 
     let result = await knexConection.raw(sql)
 
@@ -106,7 +103,7 @@ const updateDiretor = async function (ator) {
 
 const deleteDiretor = async function(id){
     try {
-        let sql = `DELETE FROM tbl_sexo WHERE id=${id};`
+        let sql = `DELETE FROM tbl_diretor WHERE id=${id};`
 
         let result = await knexConection.raw(sql)
         console.log(result)
@@ -116,6 +113,7 @@ const deleteDiretor = async function(id){
         else 
             return false
     } catch (error) {
+        console.log(error)
             return false
     }
 }
